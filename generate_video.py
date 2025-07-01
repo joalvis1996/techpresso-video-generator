@@ -12,7 +12,7 @@ HEADERS = {
 }
 
 # 뉴스 row 가져오기 테스트
-url = f"{SUPABASE_URL}/rest/v1/news?video_url=is.null&select=*"
+url = f"{SUPABASE_URL}/rest/v1/newsletter?video_url=is.null&select=*"
 res = requests.get(url, headers=HEADERS)
 print("Response status:", res.status_code)
 print("Response JSON:", res.json())
