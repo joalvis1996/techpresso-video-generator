@@ -50,8 +50,21 @@ with open("caption.txt", "w", encoding="utf-8") as f:
 subprocess.run([
     "ffmpeg", "-loop", "1", "-i", "background.png",
     "-i", "audio.mp3",
-    "-vf", "drawtext=textfile=caption.txt:fontcolor=white:fontsize=40:x=(w-text_w)/2:y=h-100",
-    "-shortest", "output.mp4"
+    "-vf",
+    (
+        "drawtext="
+        "fontfile=/usr/share/fonts/truetype/noto/NotoSansKR-Regular.otf:"
+        "textfile=caption.txt:"
+        "fontcolor=white:"
+        "fontsize=40:"
+        "x=(w-text_w)/2:"
+        "y=h-100:"
+        "borderw=2:"
+        "bordercolor=black"
+    ),
+    "-shortest",
+    "-pix_fmt", "yuv420p",
+    "output.mp4"
 ])
 
 print("✅ FFmpeg rendering done.")
