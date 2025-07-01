@@ -74,6 +74,30 @@ subprocess.run([
 
 print("✅ FFmpeg rendering done.")
 
+# Whisper로 STT → SRT 자동 생성
+subprocess.run([
+    "whisper",
+    "audio.mp3",
+    "--model", "small",
+    "--language", "ko",
+    "--output_format", "srt"
+], check=True)
+
+print("✅ Whisper SRT 생성 완료!")
+
+# 생성된 자막 합치기
+subprocess.run([
+    "ffmpeg",
+    "-loop", "1",
+    "-i", "background.png",
+    "-i", "audio.mp3",
+    "-vf", "subtitles=audio.srt",
+    "-shortest",
+    "-pix_fmt", "yuv420p",
+    "output.mp4"
+], check=True)
+
+
 # === 4) Supabase Storage에 업로드 ===
 with open("output.mp4", "rb") as f:
     upload = requests.post(

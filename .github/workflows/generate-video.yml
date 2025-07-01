@@ -21,6 +21,12 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
+      - name: Install Whisper CLI
+        run: pip install git+https://github.com/openai/whisper.git
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Install Noto fonts
         run: sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
 
