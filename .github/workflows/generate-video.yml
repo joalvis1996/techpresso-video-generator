@@ -23,7 +23,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      # ⚡ 필요한 패키지 한 번에 설치
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -31,6 +30,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          pip install numpy
           pip install aeneas
 
       - name: Confirm FFmpeg version
