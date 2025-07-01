@@ -31,20 +31,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
 
-      # ✅ Python dependencies (Conda + pip)
-      - name: Install Python dependencies (Conda)
+      # ✅ Python dependencies (Conda-safe)
+      - name: Install Python dependencies
         run: |
-          conda install -y numpy
-          pip install aeneas
-
-      - name: Confirm Conda packages
-        run: |
-          conda list
+          conda install -y pip numpy
           which python
+          which pip
           python --version
+          pip --version
+          python -m pip install aeneas
+
+      # ✅ Conda 상태 확인
+      - name: Confirm Conda packages
+        run: conda list
 
       - name: Confirm FFmpeg version
         run: ffmpeg -version
 
+      # ✅ 자막 생성 + 영상 생성 스크립트 실행
       - name: Run generator script
         run: python generate_video.py
