@@ -18,36 +18,36 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ✅ Conda 세팅
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: true
           python-version: "3.10"
 
-      # ✅ OS-level 의존성 설치
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
 
-      # ✅ Python dependencies (Conda-safe)
-      - name: Install Python dependencies
+      - name: Install Python dependencies (Conda env)
         run: |
           conda install -y pip numpy
+          conda list
           which python
           which pip
           python --version
           pip --version
-          python -m pip install aeneas
+          # ✅ Conda env 내 pip 실행 강제
+          conda run -n base python -m pip install aeneas
 
-      # ✅ Conda 상태 확인
       - name: Confirm Conda packages
-        run: conda list
+        run: |
+          conda list
+          conda info
 
       - name: Confirm FFmpeg version
         run: ffmpeg -version
 
-      # ✅ 자막 생성 + 영상 생성 스크립트 실행
-      - name: Run generator script
-        run: python generate_video.py
+      - name: Run generator script (Conda env)
+        run: |
+          conda run -n base python generate_video.py
