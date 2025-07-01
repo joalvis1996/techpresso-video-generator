@@ -18,17 +18,23 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-      - name: Install Whisper CLI
-        run: pip install git+https://github.com/openai/whisper.git
+      # ⚡ 필요한 패키지 한 번에 설치
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
 
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install Python dependencies
+        run: |
+          pip install aeneas
 
-      - name: Install Noto fonts
-        run: sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
+      - name: Confirm FFmpeg version
+        run: ffmpeg -version
 
       - name: Run generator
         run: python generate_video.py

@@ -1,8 +1,10 @@
 import os
 import requests
 import subprocess
+from aeneas.executetask import ExecuteTask
+from aeneas.task import Task
 
-# === 환경 변수 ===
+# === 0) 환경 변수 ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
 
@@ -14,7 +16,6 @@ HEADERS = {
     "Authorization": f"Bearer {SUPABASE_API_KEY}"
 }
 
-# ✅ FFmpeg 폰트 경로 (fc-list | grep CJK 로 확인한 값!)
 FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
 # === 1) Supabase에서 아직 영상 없는 row 가져오기 ===
@@ -30,7 +31,8 @@ if not rows:
     exit()
 
 row = rows[0]
-print(f"Processing row ID: {row['id']}")
+row_id = row['id']
+print(f"Processing row ID: {row_id}")
 
 # === 2) 이미지, 오디오 다운로드 ===
 image_url = row['image_url']
@@ -46,63 +48,39 @@ with open("background.png", "wb") as f:
 with open("audio.mp3", "wb") as f:
     f.write(requests.get(audio_url).content)
 
-# === 2-1) 자막 저장 ===
-with open("caption.txt", "w", encoding="utf-8") as f:
+# === 3) 원문 텍스트 저장 ===
+with open("transcript.txt", "w", encoding="utf-8") as f:
     f.write(text)
 
-# === 3) FFmpeg 실행 ===
-subprocess.run([
-    "ffmpeg",
-    "-loop", "1",
-    "-i", "background.png",
-    "-i", "audio.mp3",
-    "-vf",
-    (
-        f"drawtext="
-        f"fontfile={FONT_PATH}:"
-        f"textfile=caption.txt:"
-        f"fontcolor=white:"
-        f"fontsize=40:"
-        f"x=(w-text_w)/2:"
-        f"y=h-100:"
-        f"borderw=2:bordercolor=black"
-    ),
-    "-shortest",
-    "-pix_fmt", "yuv420p",
-    "output.mp4"
-], check=True)
+# === 4) aeneas Forced Aligner로 SRT 생성 ===
+config_string = "task_language=kor|is_text_type=plain|os_task_file_format=srt"
+task = Task(config_string=config_string)
+task.audio_file_path_absolute = os.path.abspath("audio.mp3")
+task.text_file_path_absolute = os.path.abspath("transcript.txt")
+task.sync_map_file_path_absolute = os.path.abspath("subtitle.srt")
 
-print("✅ FFmpeg rendering done.")
+ExecuteTask(task).execute()
+task.output_sync_map_file()
+print("✅ aeneas SRT 생성 완료!")
 
-# Whisper로 STT → SRT 자동 생성
-subprocess.run([
-    "whisper",
-    "audio.mp3",
-    "--model", "small",
-    "--language", "ko",
-    "--output_format", "srt"
-], check=True)
-
-print("✅ Whisper SRT 생성 완료!")
-
-# === 4-b) Supabase Storage에 SRT 업로드 ===
-with open("audio.srt", "rb") as f:
+# === 5) Supabase Storage에 SRT 업로드 ===
+with open("subtitle.srt", "rb") as f:
     srt_upload = requests.post(
-        f"{SUPABASE_URL}/storage/v1/object/newsletter-video-srt/subtitle_{row['id']}.srt",
+        f"{SUPABASE_URL}/storage/v1/object/newsletter-video-srt/subtitle_{row_id}.srt",
         headers={
             "Authorization": f"Bearer {SUPABASE_API_KEY}",
-            "Content-Type": "application/octet-stream"
+            "Content-Type": "application/x-subrip"
         },
         data=f
     )
 
 print("SRT Upload response:", srt_upload.status_code, srt_upload.text)
 
-# === 5-b) subtitle_url 컬럼 PATCH ===
-subtitle_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video-srt/subtitle_{row['id']}.srt"
+# === 6) DB에 subtitle_url 업데이트 ===
+subtitle_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video-srt/subtitle_{row_id}.srt"
 
 patch_subtitle = requests.patch(
-    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row['id']}",
+    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
     headers={
         "apikey": SUPABASE_API_KEY,
         "Authorization": f"Bearer {SUPABASE_API_KEY}",
@@ -110,27 +88,26 @@ patch_subtitle = requests.patch(
     },
     json={"subtitle_url": subtitle_url}
 )
-
 print("PATCH subtitle_url response:", patch_subtitle.status_code, patch_subtitle.text)
 
-
-# 생성된 자막 합치기
+# === 7) FFmpeg로 이미지+오디오+자막 합치기 ===
 subprocess.run([
     "ffmpeg",
     "-loop", "1",
     "-i", "background.png",
     "-i", "audio.mp3",
-    "-vf", "subtitles=audio.srt",
+    "-vf", f"subtitles=subtitle.srt:force_style='FontName=Noto Sans CJK SC,FontSize=40,OutlineColour=&H80000000,BorderStyle=1,Outline=2'",
     "-shortest",
     "-pix_fmt", "yuv420p",
     "output.mp4"
 ], check=True)
 
+print("✅ Final video with subtitle done.")
 
-# === 4) Supabase Storage에 업로드 ===
+# === 8) Supabase Storage에 영상 업로드 ===
 with open("output.mp4", "rb") as f:
     upload = requests.post(
-        f"{SUPABASE_URL}/storage/v1/object/newsletter-video/video_{row['id']}.mp4",
+        f"{SUPABASE_URL}/storage/v1/object/newsletter-video/video_{row_id}.mp4",
         headers={
             "Authorization": f"Bearer {SUPABASE_API_KEY}",
             "Content-Type": "application/octet-stream"
@@ -138,13 +115,13 @@ with open("output.mp4", "rb") as f:
         data=f
     )
 
-print("Upload response:", upload.status_code, upload.text)
+print("Video Upload response:", upload.status_code, upload.text)
 
-# === 5) video_url 컬럼 PATCH ===
-public_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video/video_{row['id']}.mp4"
+# === 9) video_url 컬럼 PATCH ===
+public_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video/video_{row_id}.mp4"
 
 patch = requests.patch(
-    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row['id']}",
+    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
     headers={
         "apikey": SUPABASE_API_KEY,
         "Authorization": f"Bearer {SUPABASE_API_KEY}",
@@ -153,5 +130,5 @@ patch = requests.patch(
     json={"video_url": public_url}
 )
 
-print("PATCH response:", patch.status_code, patch.text)
-print("✅ Process completed.")
+print("PATCH video_url response:", patch.status_code, patch.text)
+print("동영상 생성 완료!")
