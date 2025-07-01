@@ -1,41 +1,16 @@
-name: Generate News Video
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-  schedule:
-    - cron: '*/10 * * * *'
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install ffmpeg
+      # ✅ 이거면 FFmpeg 기본 포함!
+      - name: Confirm FFmpeg version
+        run: ffmpeg -version
 
-      - name: Install Noto Fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji
-
-      - name: List Noto fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-noto-core fonts-noto-cjk fonts-noto-color-emoji
-          fc-list | grep Noto
-
-      - name: Install Python dependencies
-        run: pip install requests
+      - name: Install fonts
+        run: sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
 
       - name: Run video generator
         run: python generate_video.py
