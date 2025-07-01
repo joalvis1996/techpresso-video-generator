@@ -85,6 +85,35 @@ subprocess.run([
 
 print("✅ Whisper SRT 생성 완료!")
 
+# === 4-b) Supabase Storage에 SRT 업로드 ===
+with open("audio.srt", "rb") as f:
+    srt_upload = requests.post(
+        f"{SUPABASE_URL}/storage/v1/object/newsletter-video-srt/subtitle_{row['id']}.srt",
+        headers={
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/octet-stream"
+        },
+        data=f
+    )
+
+print("SRT Upload response:", srt_upload.status_code, srt_upload.text)
+
+# === 5-b) subtitle_url 컬럼 PATCH ===
+subtitle_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video-srt/subtitle_{row['id']}.srt"
+
+patch_subtitle = requests.patch(
+    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row['id']}",
+    headers={
+        "apikey": SUPABASE_API_KEY,
+        "Authorization": f"Bearer {SUPABASE_API_KEY}",
+        "Content-Type": "application/json"
+    },
+    json={"subtitle_url": subtitle_url}
+)
+
+print("PATCH subtitle_url response:", patch_subtitle.status_code, patch_subtitle.text)
+
+
 # 생성된 자막 합치기
 subprocess.run([
     "ffmpeg",
