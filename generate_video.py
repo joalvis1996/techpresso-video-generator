@@ -53,14 +53,13 @@ subprocess.run([
     "-vf",
     (
         "drawtext="
-        "fontfile=/usr/share/fonts/truetype/noto/NotoSansKR-Regular.otf:"
+        "fontfile=/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc:"  # ✅ 경로 정확히!
         "textfile=caption.txt:"
         "fontcolor=white:"
         "fontsize=40:"
         "x=(w-text_w)/2:"
         "y=h-100:"
-        "borderw=2:"
-        "bordercolor=black"
+        "borderw=2:bordercolor=black"
     ),
     "-shortest",
     "-pix_fmt", "yuv420p",
