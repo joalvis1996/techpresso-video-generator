@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -17,11 +21,8 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Install fonts
+      - name: Install Noto fonts
         run: sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
-
-      - name: Confirm FFmpeg version
-        run: ffmpeg -version
 
       - name: Run generator
         run: python generate_video.py
