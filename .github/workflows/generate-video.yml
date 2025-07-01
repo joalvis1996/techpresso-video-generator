@@ -2,8 +2,7 @@ name: Generate News Video
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -18,33 +17,31 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Miniconda
+      - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: base
-          python-version: "3.10"
           auto-activate-base: true
+          python-version: "3.10"
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
 
-      - name: Install Conda + pip deps in env
+      - name: Install Conda + pip deps in base env
         run: |
-          conda run -n base conda install -y numpy pip
+          conda install -y numpy pip
           conda run -n base python -m pip install aeneas
 
       - name: Confirm Conda env info
         run: |
           conda info
           conda list
-          conda env list
+          which conda
           conda run -n base which python
-          conda run -n base python --version
 
       - name: Confirm FFmpeg
         run: ffmpeg -version
 
-      - name: Run generator in Conda env
+      - name: Run generator
         run: conda run -n base python generate_video.py
