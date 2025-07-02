@@ -62,7 +62,7 @@ print("=======================")
 
 # === 4) Forced Aligner로 SRT 생성 ===
 config_string = (
-    "task_language=kor"
+    "task_language=eng"
     "|is_text_type=plain"
     "|os_task_file_format=srt"
     "|is_audio_file_already_synthesized=yes"
