@@ -110,7 +110,7 @@ subprocess.run([
     "-loop", "1",
     "-i", "background.png",
     "-i", "audio.mp3",
-    "-vf", f"subtitles=subtitle.srt:force_style='FontName=Noto Sans CJK SC,FontSize=40,OutlineColour=&H80000000,BorderStyle=1,Outline=2'",
+    -vf "subtitles=subtitle.srt:force_style='FontName=Noto Sans CJK SC,FontSize=24,OutlineColour=&H80000000,BorderStyle=1,Outline=2'"
     "-shortest",
     "-pix_fmt", "yuv420p",
     "output.mp4"
