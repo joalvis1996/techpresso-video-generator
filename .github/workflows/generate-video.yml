@@ -41,7 +41,7 @@ jobs:
       # ✅ 5. Conda env 활성화 후 Python deps 설치
       - name: Install Python dependencies
         run: |
-          conda run -n aeneas-env pip install aeneas
+          conda run -n aeneas-env pip install aeneas requests
 
       # ✅ 6. Conda env 테스트
       - name: Confirm Conda environment
