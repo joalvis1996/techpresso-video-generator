@@ -2,7 +2,8 @@ name: Generate News Video
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -14,29 +15,45 @@ jobs:
       SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
 
     steps:
+      # ✅ 1. Repo Checkout
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Miniconda
+      # ✅ 2. Conda 설치 (Miniconda)
+      - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: false
-          python-version: "3.10"
 
-      - name: Install system deps
+      # ✅ 3. OS-level 의존성 설치
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
+          sudo apt-get install -y \
+            ffmpeg espeak libespeak-dev libsndfile1 \
+            fonts-noto-cjk fonts-noto-cjk-extra
 
-      - name: Create aeneas env and install deps
+      # ✅ 4. Conda env 생성
+      - name: Create aeneas Conda environment
         run: |
           conda create -n aeneas-env python=3.10 numpy pip -y
+
+      # ✅ 5. Conda env 활성화 후 Python deps 설치
+      - name: Install Python dependencies
+        run: |
           conda run -n aeneas-env pip install aeneas
 
-      - name: Confirm env
+      # ✅ 6. Conda env 테스트
+      - name: Confirm Conda environment
         run: |
-          conda env list
           conda run -n aeneas-env python --version
+          conda run -n aeneas-env which python
+          conda run -n aeneas-env python -c "import numpy; print(numpy.__version__)"
 
+      - name: Confirm FFmpeg version
+        run: ffmpeg -version
+
+      # ✅ 7. 실행
       - name: Run generator script
-        run: conda run -n aeneas-env python generate_video.py
+        run: |
+          conda run -n aeneas-env python generate_video.py
