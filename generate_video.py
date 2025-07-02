@@ -53,7 +53,13 @@ with open("transcript.txt", "w", encoding="utf-8") as f:
     f.write(text)
 
 # === 4) aeneas Forced Aligner로 SRT 생성 ===
-config_string = "task_language=kor|is_text_type=plain|os_task_file_format=srt"
+# ✅ config_string 수정!
+config_string = (
+    "task_language=kor"
+    "|is_text_type=plain"
+    "|os_task_file_format=srt"
+    "|is_audio_file_already_synthesized=yes"
+)
 task = Task(config_string=config_string)
 task.audio_file_path_absolute = os.path.abspath("audio.mp3")
 task.text_file_path_absolute = os.path.abspath("transcript.txt")
