@@ -40,7 +40,7 @@ jobs:
 
       - name: Install whisper in conda env
         run: |
-        conda run -n aeneas-env pip install openai-whisper
+          conda run -n aeneas-env pip install openai-whisper
 
       # ✅ 5. Conda env 활성화 후 Python deps 설치
       - name: Install Python dependencies
