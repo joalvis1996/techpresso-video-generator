@@ -20,27 +20,23 @@ jobs:
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-activate-base: true
+          auto-activate-base: false
           python-version: "3.10"
 
-      - name: Install system dependencies
+      - name: Install system deps
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
-      - name: Install Conda + pip deps in base env
+
+      - name: Create aeneas env and install deps
         run: |
-          conda install -y numpy pip
-          conda run -n base python -m pip install aeneas
+          conda create -n aeneas-env python=3.10 numpy pip -y
+          conda run -n aeneas-env pip install aeneas
 
-      - name: Confirm Conda env info
+      - name: Confirm env
         run: |
-          conda info
-          conda list
-          conda run -n base which python
-          conda run -n base python --version
+          conda env list
+          conda run -n aeneas-env python --version
 
-      - name: Run generator
-        run: conda run -n base python generate_video.py
-
-      - name: Confirm FFmpeg
-        run: ffmpeg -version
+      - name: Run generator script
+        run: conda run -n aeneas-env python generate_video.py
