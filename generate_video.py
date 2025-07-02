@@ -52,15 +52,22 @@ with open("audio.mp3", "wb") as f:
 with open("transcript.txt", "w", encoding="utf-8") as f:
     f.write(text)
 
-# === 4) aeneas Forced Aligner로 SRT 생성 ===
+# 1) config_string: 반드시 is_audio_file_already_synthesized=yes
 config_string = (
-    "task_language=eng"  # kor 대신 eng
+    "task_language=kor"
     "|is_text_type=plain"
     "|os_task_file_format=srt"
     "|is_audio_file_already_synthesized=yes"
 )
-print("CONFIG_STRING:", config_string)
 
+# 2) 문장 단위 줄바꿈
+import re
+text = row['news_style_content']
+text = re.sub(r'([.?!])', r'\1\n', text)
+with open("transcript.txt", "w", encoding="utf-8") as f:
+    f.write(text)
+
+# 3) aeneas 실행
 task = Task(config_string=config_string)
 task.audio_file_path_absolute = os.path.abspath("audio.mp3")
 task.text_file_path_absolute = os.path.abspath("transcript.txt")
