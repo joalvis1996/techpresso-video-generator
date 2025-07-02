@@ -15,49 +15,42 @@ jobs:
       SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
 
     steps:
-      # ✅ 1. Repo Checkout
+      # 1. Checkout
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ✅ 2. Conda 설치 (Miniconda)
+      # 2. Conda 설치
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: false
 
-      # ✅ 3. OS-level 의존성 설치
+      # 3. 필요한 OS 패키지 설치
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            ffmpeg espeak libespeak-dev libsndfile1 \
-            fonts-noto-cjk fonts-noto-cjk-extra
+          sudo apt-get install -y ffmpeg fonts-noto-cjk fonts-noto-cjk-extra
 
-      # ✅ 4. Conda env 생성
-      - name: Create aeneas Conda environment
+      # 4. Conda env 생성 및 Whisper 설치
+      - name: Create Conda environment
         run: |
-          conda create -n aeneas-env python=3.10 numpy pip -y
+          conda create -n news-video-env python=3.10 numpy pip -y
 
-      - name: Install whisper in conda env
-        run: |
-          conda run -n aeneas-env pip install openai-whisper
-
-      # ✅ 5. Conda env 활성화 후 Python deps 설치
       - name: Install Python dependencies
         run: |
-          conda run -n aeneas-env pip install aeneas requests
+          conda run -n news-video-env pip install openai-whisper requests
 
-      # ✅ 6. Conda env 테스트
+      # 5. Conda 확인
       - name: Confirm Conda environment
         run: |
-          conda run -n aeneas-env python --version
-          conda run -n aeneas-env which python
-          conda run -n aeneas-env python -c "import numpy; print(numpy.__version__)"
+          conda run -n news-video-env python --version
+          conda run -n news-video-env python -c "import whisper; print('✅ whisper OK')"
 
+      # 6. FFmpeg 확인
       - name: Confirm FFmpeg version
         run: ffmpeg -version
 
-      # ✅ 7. 실행
+      # 7. 실행
       - name: Run generator script
         run: |
-          conda run -n aeneas-env python generate_video.py
+          conda run -n news-video-env python generate_video.py
