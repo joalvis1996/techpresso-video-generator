@@ -53,7 +53,6 @@ with open("transcript.txt", "w", encoding="utf-8") as f:
     f.write(text)
 
 # === 4) aeneas Forced Aligner로 SRT 생성 ===
-# ✅ config_string 수정!
 config_string = (
     "task_language=kor"
     "|is_text_type=plain"
