@@ -59,10 +59,14 @@ config_string = (
     "|os_task_file_format=srt"
     "|is_audio_file_already_synthesized=yes"
 )
+print("CONFIG_STRING:", config_string)
+
 task = Task(config_string=config_string)
 task.audio_file_path_absolute = os.path.abspath("audio.mp3")
 task.text_file_path_absolute = os.path.abspath("transcript.txt")
 task.sync_map_file_path_absolute = os.path.abspath("subtitle.srt")
+
+task.configuration["is_audio_file_already_synthesized"] = True
 
 ExecuteTask(task).execute()
 task.output_sync_map_file()
