@@ -25,7 +25,7 @@ rows = res.json()
 print("Response JSON:", rows)
 
 if not rows:
-    print("✅ No new rows to process.")
+    print("✅ 새로운 기사 없음.")
     exit()
 
 row = rows[0]
