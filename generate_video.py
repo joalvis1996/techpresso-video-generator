@@ -19,9 +19,9 @@ HEADERS = {
 # === 1) Supabase에서 아직 영상 없는 row 가져오기 ===
 url = (
     f"{SUPABASE_URL}/rest/v1/newsletter"
-    "?video_url=is.null"       # 동영상 생성 안된 
-    "&image_url=is.not.null"   # 이미지는 생성된
-    "&audio_url=is.not.null"   # 음성 파일은 생성된
+    "?video_url=is.null"         # 아직 동영상 없음
+    "&image_url=not.is.null"     # 이미지 있음
+    "&audio_url=not.is.null"     # 오디오 있음
     "&select=*"
 )
 res = requests.get(url, headers=HEADERS)
