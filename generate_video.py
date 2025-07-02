@@ -161,7 +161,7 @@ def shift_and_stretch_srt(filename, shift_seconds=-2, stretch_rate=0.98):
     print(f"✅ SRT shift({shift_seconds}s) + stretch({stretch_rate*100:.1f}%) 완료!")
 
 # === 사용 예시 ===
-shift_and_stretch_srt("subtitle.srt", shift_seconds=-2, stretch_rate=0.98)
+shift_and_stretch_srt("subtitle.srt", shift_seconds=-2, stretch_rate=0.975)
 
 # === 5) Supabase Storage에 SRT 업로드 ===
 with open("subtitle.srt", "rb") as f:
