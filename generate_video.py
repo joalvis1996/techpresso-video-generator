@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 import subprocess
 from aeneas.executetask import ExecuteTask
@@ -48,11 +49,18 @@ with open("background.png", "wb") as f:
 with open("audio.mp3", "wb") as f:
     f.write(requests.get(audio_url).content)
 
-# === 3) 원문 텍스트 저장 ===
-with open("transcript.txt", "w", encoding="utf-8") as f:
-    f.write(text)
+# === 3) 원문 텍스트 문장별로 줄바꿈 저장 ===
+text_cleaned = re.sub(r'([.!?])\s*', r'\1\n', text).strip()
 
-# 1) config_string: 반드시 is_audio_file_already_synthesized=yes
+with open("transcript.txt", "w", encoding="utf-8") as f:
+    f.write(text_cleaned)
+
+print("✅ 문장 단위 줄바꿈 완료")
+print("=== transcript.txt ===")
+print(text_cleaned)
+print("=======================")
+
+# === 4) Forced Aligner로 SRT 생성 ===
 config_string = (
     "task_language=kor"
     "|is_text_type=plain"
@@ -60,14 +68,6 @@ config_string = (
     "|is_audio_file_already_synthesized=yes"
 )
 
-# 문장 단위로 깨끗하게
-import re
-text = row['news_style_content'].strip()
-text = re.sub(r'([.?!])\s*', r'\1\n', text).strip()
-with open("transcript.txt", "w", encoding="utf-8") as f:
-    f.write(text)
-
-# Task 생성할 때는 config_string만!
 task = Task(config_string=config_string)
 task.audio_file_path_absolute = os.path.abspath("audio.mp3")
 task.text_file_path_absolute = os.path.abspath("transcript.txt")
@@ -145,4 +145,4 @@ patch = requests.patch(
 )
 
 print("PATCH video_url response:", patch.status_code, patch.text)
-print("동영상 생성 완료!")
+print("✅ 동영상 생성 및 업로드 완료!")
