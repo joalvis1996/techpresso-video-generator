@@ -4,6 +4,7 @@ import requests
 import subprocess
 from aeneas.executetask import ExecuteTask
 from aeneas.task import Task
+from datetime import datetime, timedelta  # ✅ 추가
 
 # === 0) 환경 변수 ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -76,6 +77,44 @@ task.sync_map_file_path_absolute = os.path.abspath("subtitle.srt")
 ExecuteTask(task).execute()
 task.output_sync_map_file()
 print("✅ aeneas SRT 생성 완료!")
+
+# ✅ SRT 시간 전체 오프셋 보정 함수 추가
+def shift_srt(filename, offset_seconds):
+    fmt = "%H:%M:%S,%f"
+    with open(filename, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    new_lines = []
+    for line in lines:
+        if "-->" in line:
+            start, end = line.strip().split(" --> ")
+            start_dt = datetime.strptime(start, fmt)
+            end_dt = datetime.strptime(end, fmt)
+            delta = timedelta(seconds=offset_seconds)
+            new_start = start_dt + delta
+            new_end = end_dt + delta
+
+            # 0 이하 방지
+            zero_dt = datetime.strptime("00:00:00,000", fmt)
+            if new_start < zero_dt:
+                new_start = zero_dt
+            if new_end < zero_dt:
+                new_end = zero_dt
+
+            new_line = "{} --> {}\n".format(
+                new_start.strftime(fmt)[:-3],
+                new_end.strftime(fmt)[:-3]
+            )
+            new_lines.append(new_line)
+        else:
+            new_lines.append(line)
+
+    with open(filename, "w", encoding="utf-8") as f:
+        f.writelines(new_lines)
+
+# ✅ 오프셋 적용: 2초 앞당기기
+shift_srt("subtitle.srt", -2)
+print("✅ SRT 타임라인 -2초 오프셋 보정 완료!")
 
 # === 5) Supabase Storage에 SRT 업로드 ===
 with open("subtitle.srt", "rb") as f:
