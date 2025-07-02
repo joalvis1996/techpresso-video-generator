@@ -112,9 +112,56 @@ def shift_srt(filename, offset_seconds):
     with open(filename, "w", encoding="utf-8") as f:
         f.writelines(new_lines)
 
-# ✅ 오프셋 적용: 2초 앞당기기
-shift_srt("subtitle.srt", -2)
-print("✅ SRT 타임라인 -2초 오프셋 보정 완료!")
+from datetime import datetime, timedelta
+
+def shift_and_stretch_srt(filename, shift_seconds=-2, stretch_rate=0.98):
+    """
+    SRT 파일의 시간값을 shift + stretch 조합으로 보정
+    - shift_seconds: 시작/종료 시간 모두 이동
+    - stretch_rate: 전체 길이를 비율로 압축 (1.0 = 그대로)
+    """
+    fmt = "%H:%M:%S,%f"
+    with open(filename, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    new_lines = []
+    for line in lines:
+        if "-->" in line:
+            start, end = line.strip().split(" --> ")
+            start_dt = datetime.strptime(start, fmt)
+            end_dt = datetime.strptime(end, fmt)
+            zero_dt = datetime.strptime("00:00:00,000", fmt)
+
+            # 1) stretch 적용
+            new_start = zero_dt + (start_dt - zero_dt) * stretch_rate
+            new_end = zero_dt + (end_dt - zero_dt) * stretch_rate
+
+            # 2) shift 적용
+            new_start += timedelta(seconds=shift_seconds)
+            new_end += timedelta(seconds=shift_seconds)
+
+            # 음수 방지
+            if new_start < zero_dt:
+                new_start = zero_dt
+            if new_end < zero_dt:
+                new_end = zero_dt + timedelta(milliseconds=500)
+
+            # 다시 문자열로 포맷
+            new_line = "{} --> {}\n".format(
+                new_start.strftime(fmt)[:-3],
+                new_end.strftime(fmt)[:-3]
+            )
+            new_lines.append(new_line)
+        else:
+            new_lines.append(line)
+
+    with open(filename, "w", encoding="utf-8") as f:
+        f.writelines(new_lines)
+
+    print(f"✅ SRT shift({shift_seconds}s) + stretch({stretch_rate*100:.1f}%) 완료!")
+
+# === 사용 예시 ===
+shift_and_stretch_srt("subtitle.srt", shift_seconds=-2, stretch_rate=0.98)
 
 # === 5) Supabase Storage에 SRT 업로드 ===
 with open("subtitle.srt", "rb") as f:
