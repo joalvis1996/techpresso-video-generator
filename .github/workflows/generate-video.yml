@@ -27,7 +27,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg espeak libsndfile1 fonts-noto-cjk fonts-noto-cjk-extra
-
       - name: Install Conda + pip deps in base env
         run: |
           conda install -y numpy pip
@@ -37,11 +36,11 @@ jobs:
         run: |
           conda info
           conda list
-          which conda
           conda run -n base which python
-
-      - name: Confirm FFmpeg
-        run: ffmpeg -version
+          conda run -n base python --version
 
       - name: Run generator
         run: conda run -n base python generate_video.py
+
+      - name: Confirm FFmpeg
+        run: ffmpeg -version
