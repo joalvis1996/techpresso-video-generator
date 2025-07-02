@@ -2,9 +2,7 @@ import os
 import re
 import requests
 import subprocess
-from aeneas.executetask import ExecuteTask
-from aeneas.task import Task
-from datetime import datetime, timedelta  # ✅ 추가
+import whisper
 
 # === 0) 환경 변수 ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -17,8 +15,6 @@ HEADERS = {
     "apikey": SUPABASE_API_KEY,
     "Authorization": f"Bearer {SUPABASE_API_KEY}"
 }
-
-FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 
 # === 1) Supabase에서 아직 영상 없는 row 가져오기 ===
 url = f"{SUPABASE_URL}/rest/v1/newsletter?video_url=is.null&select=*"
@@ -39,7 +35,6 @@ print(f"Processing row ID: {row_id}")
 # === 2) 이미지, 오디오 다운로드 ===
 image_url = row['image_url']
 audio_url = row['audio_url']
-text = row['news_style_content']
 
 print("Image URL:", image_url)
 print("Audio URL:", audio_url)
@@ -50,120 +45,30 @@ with open("background.png", "wb") as f:
 with open("audio.mp3", "wb") as f:
     f.write(requests.get(audio_url).content)
 
-# === 3) 원문 텍스트 문장별로 줄바꿈 저장 ===
-text_cleaned = re.sub(r'([.!?])\s*', r'\1\n', text).strip()
+# === 3) Whisper로 STT → SRT 자막 생성 ===
+model = whisper.load_model("small")  # or "base", "medium", "large" 등
+result = model.transcribe("audio.mp3", language="ko")  # 한국어면 "ko"
 
-with open("transcript.txt", "w", encoding="utf-8") as f:
-    f.write(text_cleaned)
+# === Whisper 자막 SRT 저장 ===
+def segments_to_srt(segments, path):
+    def format_timestamp(seconds: float) -> str:
+        h = int(seconds // 3600)
+        m = int((seconds % 3600) // 60)
+        s = int(seconds % 60)
+        ms = int((seconds % 1) * 1000)
+        return f"{h:02}:{m:02}:{s:02},{ms:03}"
 
-print("✅ 문장 단위 줄바꿈 완료")
-print("=== transcript.txt ===")
-print(text_cleaned)
-print("=======================")
+    with open(path, "w", encoding="utf-8") as f:
+        for i, segment in enumerate(segments, start=1):
+            start = format_timestamp(segment["start"])
+            end = format_timestamp(segment["end"])
+            text = segment["text"].strip()
+            f.write(f"{i}\n{start} --> {end}\n{text}\n\n")
 
-# === 4) Forced Aligner로 SRT 생성 ===
-config_string = (
-    "task_language=eng"
-    "|is_text_type=plain"
-    "|os_task_file_format=srt"
-    "|is_audio_file_already_synthesized=yes"
-)
+segments_to_srt(result["segments"], "subtitle.srt")
+print("✅ Whisper SRT 생성 완료!")
 
-task = Task(config_string=config_string)
-task.audio_file_path_absolute = os.path.abspath("audio.mp3")
-task.text_file_path_absolute = os.path.abspath("transcript.txt")
-task.sync_map_file_path_absolute = os.path.abspath("subtitle.srt")
-
-ExecuteTask(task).execute()
-task.output_sync_map_file()
-print("✅ aeneas SRT 생성 완료!")
-
-# ✅ SRT 시간 전체 오프셋 보정 함수 추가
-def shift_srt(filename, offset_seconds):
-    fmt = "%H:%M:%S,%f"
-    with open(filename, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    new_lines = []
-    for line in lines:
-        if "-->" in line:
-            start, end = line.strip().split(" --> ")
-            start_dt = datetime.strptime(start, fmt)
-            end_dt = datetime.strptime(end, fmt)
-            delta = timedelta(seconds=offset_seconds)
-            new_start = start_dt + delta
-            new_end = end_dt + delta
-
-            # 0 이하 방지
-            zero_dt = datetime.strptime("00:00:00,000", fmt)
-            if new_start < zero_dt:
-                new_start = zero_dt
-            if new_end < zero_dt:
-                new_end = zero_dt
-
-            new_line = "{} --> {}\n".format(
-                new_start.strftime(fmt)[:-3],
-                new_end.strftime(fmt)[:-3]
-            )
-            new_lines.append(new_line)
-        else:
-            new_lines.append(line)
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.writelines(new_lines)
-
-from datetime import datetime, timedelta
-
-def shift_and_stretch_srt(filename, shift_seconds=-2, stretch_rate=0.98):
-    """
-    SRT 파일의 시간값을 shift + stretch 조합으로 보정
-    - shift_seconds: 시작/종료 시간 모두 이동
-    - stretch_rate: 전체 길이를 비율로 압축 (1.0 = 그대로)
-    """
-    fmt = "%H:%M:%S,%f"
-    with open(filename, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    new_lines = []
-    for line in lines:
-        if "-->" in line:
-            start, end = line.strip().split(" --> ")
-            start_dt = datetime.strptime(start, fmt)
-            end_dt = datetime.strptime(end, fmt)
-            zero_dt = datetime.strptime("00:00:00,000", fmt)
-
-            # 1) stretch 적용
-            new_start = zero_dt + (start_dt - zero_dt) * stretch_rate
-            new_end = zero_dt + (end_dt - zero_dt) * stretch_rate
-
-            # 2) shift 적용
-            new_start += timedelta(seconds=shift_seconds)
-            new_end += timedelta(seconds=shift_seconds)
-
-            # 음수 방지
-            if new_start < zero_dt:
-                new_start = zero_dt
-            if new_end < zero_dt:
-                new_end = zero_dt + timedelta(milliseconds=500)
-
-            # 다시 문자열로 포맷
-            new_line = "{} --> {}\n".format(
-                new_start.strftime(fmt)[:-3],
-                new_end.strftime(fmt)[:-3]
-            )
-            new_lines.append(new_line)
-        else:
-            new_lines.append(line)
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.writelines(new_lines)
-
-    print(f"✅ SRT shift({shift_seconds}s) + stretch({stretch_rate*100:.1f}%) 완료!")
-
-# === 사용 예시 ===
-shift_and_stretch_srt("subtitle.srt", shift_seconds=-6, stretch_rate=0.965)
-
-# === 5) Supabase Storage에 SRT 업로드 ===
+# === 4) Supabase Storage에 SRT 업로드 ===
 with open("subtitle.srt", "rb") as f:
     srt_upload = requests.post(
         f"{SUPABASE_URL}/storage/v1/object/newsletter-video-srt/subtitle_{row_id}.srt",
@@ -176,7 +81,7 @@ with open("subtitle.srt", "rb") as f:
 
 print("SRT Upload response:", srt_upload.status_code, srt_upload.text)
 
-# === 6) DB에 subtitle_url 업데이트 ===
+# === 5) DB에 subtitle_url 업데이트 ===
 subtitle_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video-srt/subtitle_{row_id}.srt"
 
 patch_subtitle = requests.patch(
@@ -190,7 +95,7 @@ patch_subtitle = requests.patch(
 )
 print("PATCH subtitle_url response:", patch_subtitle.status_code, patch_subtitle.text)
 
-# === 7) FFmpeg로 이미지+오디오+자막 합치기 ===
+# === 6) FFmpeg로 이미지+오디오+자막 합치기 ===
 subprocess.run([
     "ffmpeg",
     "-loop", "1",
@@ -204,7 +109,7 @@ subprocess.run([
 
 print("✅ Final video with subtitle done.")
 
-# === 8) Supabase Storage에 영상 업로드 ===
+# === 7) Supabase Storage에 영상 업로드 ===
 with open("output.mp4", "rb") as f:
     upload = requests.post(
         f"{SUPABASE_URL}/storage/v1/object/newsletter-video/video_{row_id}.mp4",
@@ -217,7 +122,7 @@ with open("output.mp4", "rb") as f:
 
 print("Video Upload response:", upload.status_code, upload.text)
 
-# === 9) video_url 컬럼 PATCH ===
+# === 8) video_url 컬럼 PATCH ===
 public_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video/video_{row_id}.mp4"
 
 patch = requests.patch(
