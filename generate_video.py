@@ -1,8 +1,8 @@
 import os
-import re
 import requests
 import subprocess
 import whisper
+import pysrt
 
 # === 0) 환경 변수 ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -35,6 +35,7 @@ print(f"Processing row ID: {row_id}")
 # === 2) 이미지, 오디오 다운로드 ===
 image_url = row['image_url']
 audio_url = row['audio_url']
+original_text = row['news_style_content'].strip().replace("\n", " ")
 
 print("Image URL:", image_url)
 print("Audio URL:", audio_url)
@@ -46,10 +47,10 @@ with open("audio.mp3", "wb") as f:
     f.write(requests.get(audio_url).content)
 
 # === 3) Whisper로 STT → SRT 자막 생성 ===
-model = whisper.load_model("small")  # or "base", "medium", "large" 등
-result = model.transcribe("audio.mp3", language="ko")  # 한국어면 "ko"
+model = whisper.load_model("small")
+result = model.transcribe("audio.mp3", language="ko")
 
-# === Whisper 자막 SRT 저장 ===
+# === Whisper SRT 임시 저장 ===
 def segments_to_srt(segments, path):
     def format_timestamp(seconds: float) -> str:
         h = int(seconds // 3600)
@@ -66,9 +67,21 @@ def segments_to_srt(segments, path):
             f.write(f"{i}\n{start} --> {end}\n{text}\n\n")
 
 segments_to_srt(result["segments"], "subtitle.srt")
-print("✅ Whisper SRT 생성 완료!")
 
-# === 4) Supabase Storage에 SRT 업로드 ===
+# === 4) pysrt 로 원문 텍스트로 교체 ===
+subs = pysrt.open("subtitle.srt", encoding="utf-8")
+sentences = [s.strip() for s in original_text.split(".") if s.strip()]
+
+for i, sub in enumerate(subs):
+    if i < len(sentences):
+        sub.text = sentences[i]
+    else:
+        break
+
+subs.save("subtitle.srt", encoding="utf-8")
+print("✅ Whisper 타이밍 + 원문 문장 교체 완료!")
+
+# === 5) Supabase Storage에 SRT 업로드 ===
 with open("subtitle.srt", "rb") as f:
     srt_upload = requests.post(
         f"{SUPABASE_URL}/storage/v1/object/newsletter-video-srt/subtitle_{row_id}.srt",
@@ -81,7 +94,7 @@ with open("subtitle.srt", "rb") as f:
 
 print("SRT Upload response:", srt_upload.status_code, srt_upload.text)
 
-# === 5) DB에 subtitle_url 업데이트 ===
+# === 6) DB에 subtitle_url 업데이트 ===
 subtitle_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video-srt/subtitle_{row_id}.srt"
 
 patch_subtitle = requests.patch(
@@ -95,7 +108,7 @@ patch_subtitle = requests.patch(
 )
 print("PATCH subtitle_url response:", patch_subtitle.status_code, patch_subtitle.text)
 
-# === 6) FFmpeg로 이미지+오디오+자막 합치기 ===
+# === 7) FFmpeg로 이미지+오디오+자막 합치기 ===
 subprocess.run([
     "ffmpeg",
     "-loop", "1",
@@ -109,7 +122,7 @@ subprocess.run([
 
 print("✅ Final video with subtitle done.")
 
-# === 7) Supabase Storage에 영상 업로드 ===
+# === 8) Supabase Storage에 영상 업로드 ===
 with open("output.mp4", "rb") as f:
     upload = requests.post(
         f"{SUPABASE_URL}/storage/v1/object/newsletter-video/video_{row_id}.mp4",
@@ -122,7 +135,7 @@ with open("output.mp4", "rb") as f:
 
 print("Video Upload response:", upload.status_code, upload.text)
 
-# === 8) video_url 컬럼 PATCH ===
+# === 9) video_url 컬럼 PATCH ===
 public_url = f"{SUPABASE_URL}/storage/v1/object/public/newsletter-video/video_{row_id}.mp4"
 
 patch = requests.patch(
