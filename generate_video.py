@@ -60,14 +60,14 @@ config_string = (
     "|is_audio_file_already_synthesized=yes"
 )
 
-# 2) 문장 단위 줄바꿈
+# 문장 단위로 깨끗하게
 import re
-text = row['news_style_content']
-text = re.sub(r'([.?!])', r'\1\n', text)
+text = row['news_style_content'].strip()
+text = re.sub(r'([.?!])\s*', r'\1\n', text).strip()
 with open("transcript.txt", "w", encoding="utf-8") as f:
     f.write(text)
 
-# 3) aeneas 실행
+# Task 생성할 때는 config_string만!
 task = Task(config_string=config_string)
 task.audio_file_path_absolute = os.path.abspath("audio.mp3")
 task.text_file_path_absolute = os.path.abspath("transcript.txt")
