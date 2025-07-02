@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          conda run -n news-video-env pip install openai-whisper requests
+          conda run -n news-video-env pip install openai-whisper pysrt requests
 
       # 5. Conda 확인
       - name: Confirm Conda environment
