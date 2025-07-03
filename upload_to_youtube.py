@@ -46,23 +46,34 @@ with open(video_file, "wb") as f:
 
 print("✅ 영상 다운로드 완료")
 
-# Youtube OAuth 인증
-res = requests.post(
+# 1) 사인드 URL 요청
+sign_res = requests.post(
     f"{SUPABASE_URL}/storage/v1/object/sign/youtube-oauth/token.json",
     headers=HEADERS,
-    json={"expiresIn": 3600}  # 1시간 유효
+    json={"expiresIn": 3600}
 )
-print("Signed URL response:", res.status_code, res.text)
+print("Signed URL response:", sign_res.status_code, sign_res.text)
+sign_res.raise_for_status()
 
-signed_url = res.json()["signedURL"]
+signed_url = sign_res.json()["signedURL"]
 
-# 2) 실제 파일 다운로드
-file_resp = requests.get(f"{SUPABASE_URL}{signed_url}")
-with open("token.json", "wb") as f:
-    f.write(file_resp.content)
-print(file_resp.json())
+# 2) 절대 경로 만들기 (중복 X)
+# 만약 signedURL이 "/object/sign/youtube-oauth/..." 형태라면
+# 이미 경로가 포함되어 있으므로 SUPABASE_URL만 붙임
+download_url = f"{SUPABASE_URL}{signed_url}"
 
-print("✅ OAuth 파일 다운로드 완료")
+# 3) 파일 가져오기
+file_resp = requests.get(download_url)
+print("Signed URL download status:", file_resp.status_code)
+
+if file_resp.status_code == 200:
+    with open("token.json", "wb") as f:
+        f.write(file_resp.content)
+    print("✅ OAuth 파일 다운로드 완료")
+    print("token.json 내용:", file_resp.text)
+else:
+    print("❌ Signed URL 다운로드 실패:", file_resp.text)
+    exit(1)
 
 # === 4) 유튜브 인증 ===
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
