@@ -64,7 +64,7 @@ token_res = requests.get(
 )
 print(token_res.json())
 with open("token.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
+    json.dump(token_res.json(), f, ensure_ascii=False, indent=2)
 
 print("✅ OAuth 파일 다운로드 완료")
 
