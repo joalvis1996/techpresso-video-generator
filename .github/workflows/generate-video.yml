@@ -1,20 +1,17 @@
 name: Generate News Video
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-  schedule:
-    - cron: "0 17 * * *"  # KST 02:00
-    - cron: "0 18 * * *"  # KST 03:00
-    - cron: "0 19 * * *"  # KST 04:00
-    - cron: "0 20 * * *"  # KST 05:00
-    - cron: "0 21 * * *"  # KST 06:00
-    - cron: "0 22 * * *"  # KST 07:00
-    - cron: "0 23 * * *"  # KST 08:00
-    - cron: "0 0 * * *"   # KST 09:00
-    
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: "0 17 * * *"  # KST 02:00
+#     - cron: "0 18 * * *"  # KST 03:00
+#     - cron: "0 19 * * *"  # KST 04:00
+#     - cron: "0 20 * * *"  # KST 05:00
+#     - cron: "0 21 * * *"  # KST 06:00
+#     - cron: "0 22 * * *"  # KST 07:00
+#     - cron: "0 23 * * *"  # KST 08:00
+#     - cron: "0 0 * * *"   # KST 09:00
+
 jobs:
   build:
     runs-on: ubuntu-latest
