@@ -46,25 +46,21 @@ with open(video_file, "wb") as f:
 
 print("✅ 영상 다운로드 완료")
 
-# === 3) Supabase Storage에서 OAuth 파일 가져오기 ===
-print("📥 Supabase Storage에서 OAuth 파일 다운로드")
-
-# client_secret.json
-secret_res = requests.get(
-    f"{SUPABASE_URL}/storage/v1/object/public/youtube-oauth/client_secret.json",
-    headers=HEADERS
+# Youtube OAuth 인증
+res = requests.post(
+    f"{SUPABASE_URL}/storage/v1/object/sign/youtube-oauth/token.json",
+    headers=HEADERS,
+    json={"expiresIn": 3600}  # 1시간 유효
 )
-with open("client_secret.json", "wb") as f:
-    f.write(secret_res.content)
+print("Signed URL response:", res.status_code, res.text)
 
-# token.json
-token_res = requests.get(
-    f"{SUPABASE_URL}/storage/v1/object/public/youtube-oauth/token.json",
-    headers=HEADERS
-)
-print(token_res.json())
-with open("token.json", "w", encoding="utf-8") as f:
-    json.dump(token_res.json(), f, ensure_ascii=False, indent=2)
+signed_url = res.json()["signedURL"]
+
+# 2) 실제 파일 다운로드
+file_resp = requests.get(f"{SUPABASE_URL}{signed_url}")
+with open("token.json", "wb") as f:
+    f.write(file_resp.content)
+
 
 print("✅ OAuth 파일 다운로드 완료")
 
