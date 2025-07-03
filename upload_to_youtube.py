@@ -18,8 +18,8 @@ HEADERS = {
 # === 1) 업로드할 영상 가져오기 ===
 url = (
     f"{SUPABASE_URL}/rest/v1/newsletter"
-    "?video_url=is.not.null"
-    "&youtube_url=is.null"
+    "?video_url=not.is.null"   # video_url이 null이 아닌 row
+    "&youtube_url=is.null"     # youtube_url이 null인 row
     "&select=*"
 )
 res = requests.get(url, headers=HEADERS)
