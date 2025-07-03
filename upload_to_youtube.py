@@ -95,12 +95,16 @@ if not creds or not creds.valid:
 youtube = build("youtube", "v3", credentials=creds)
 
 # === 5) 유튜브 쇼츠 업로드 ===
+# 해시태그 지정
+hashtags = "#AI #테크"
+
+# 제목은 최대 100자 추천 (쇼츠는 너무 길면 안 보임)
 body = {
     "snippet": {
-        "title": title[:95],
-        "description": description[:5000],
-        "tags": ["뉴스", "AI", "Techpresso"],
-        "categoryId": "27"  # News & Politics
+        "title": f"{hashtags} {title[:90]}",  # 해시태그를 제목 앞에 붙임
+        "description": f"{hashtags}\n\n{description[:5000]}",  # 해시태그를 설명 맨 위에도
+        "tags": ["뉴스", "AI"],  # 검색용
+        "categoryId": "28"  # News & Politics
     },
     "status": {
         "privacyStatus": "public"
