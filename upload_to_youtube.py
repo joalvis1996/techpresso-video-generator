@@ -60,7 +60,8 @@ signed_url = sign_res.json()["signedURL"]
 # 2) 절대 경로 만들기 (중복 X)
 # 만약 signedURL이 "/object/sign/youtube-oauth/..." 형태라면
 # 이미 경로가 포함되어 있으므로 SUPABASE_URL만 붙임
-download_url = f"{SUPABASE_URL}{signed_url}"
+download_url = f"{SUPABASE_URL}/storage/v1{signed_url}"
+
 
 # 3) 파일 가져오기
 file_resp = requests.get(download_url)
