@@ -60,7 +60,7 @@ signed_url = res.json()["signedURL"]
 file_resp = requests.get(f"{SUPABASE_URL}{signed_url}")
 with open("token.json", "wb") as f:
     f.write(file_resp.content)
-
+print(file_resp.json())
 
 print("✅ OAuth 파일 다운로드 완료")
 
