@@ -62,8 +62,9 @@ token_res = requests.get(
     f"{SUPABASE_URL}/storage/v1/object/public/youtube-oauth/token.json",
     headers=HEADERS
 )
-with open("token.json", "wb") as f:
-    f.write(token_res.content)
+print(token_res.json())
+with open("token.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
 
 print("✅ OAuth 파일 다운로드 완료")
 
