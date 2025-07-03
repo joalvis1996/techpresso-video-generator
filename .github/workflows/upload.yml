@@ -4,8 +4,16 @@ on:
   push:
     branches:
       - main
+  # 오전 10시부터 11시까지 10분마다 업로드
   schedule:
-    - cron: "0 2-8 * * *" # 매일 2시~8시 매 정각
+    - cron: "0 1 * * *"   # KST 10:00
+    - cron: "10 1 * * *"  # KST 10:10
+    - cron: "20 1 * * *"  # KST 10:20
+    - cron: "30 1 * * *"  # KST 10:30
+    - cron: "40 1 * * *"  # KST 10:40
+    - cron: "50 1 * * *"  # KST 10:50
+    - cron: "0 2 * * *"   # KST 11:00
+
   workflow_dispatch:
 
 jobs:
