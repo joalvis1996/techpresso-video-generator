@@ -13,7 +13,8 @@ on:
     - cron: "0 21 * * *"  # KST 06:00
     - cron: "0 22 * * *"  # KST 07:00
     - cron: "0 23 * * *"  # KST 08:00
-
+    - cron: "0 0 * * *"   # KST 09:00
+    
 jobs:
   build:
     runs-on: ubuntu-latest
