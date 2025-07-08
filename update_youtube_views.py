@@ -22,7 +22,7 @@ params = {
     "select": "*"
 }
 res = requests.get(url, headers=HEADERS, params=params)
-vidoes = res.json()
+videos = res.json()
 
 for video in videos:
     row_id = video['id']
