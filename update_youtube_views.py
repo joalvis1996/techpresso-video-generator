@@ -1,52 +1,101 @@
-import requests
 import os
-from datetime import datetime
+import requests
+import json
+import google.auth
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
-# 환경변수
+# === 0) Supabase 연결 ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
-YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-# Supabase headers
 HEADERS = {
     "apikey": SUPABASE_API_KEY,
-    "Authorization": f"Bearer {SUPABASE_API_KEY}",
-    "Content-Type": "application/json"
+    "Authorization": f"Bearer {SUPABASE_API_KEY}"
 }
 
-# 1) Supabase에서 youtube_url 있는 rows 가져오기
-url = f"{SUPABASE_URL}/rest/v1/newsletter"
-params = {
-    "youtube_url": "not.is.null",
-    "youtube_views": "is.null",
-    "select": "*"
-}
-res = requests.get(url, headers=HEADERS, params=params)
+# === 1) youtube_url은 있으나 youtube_views가 null인 row만 가져오기 ===
+url = (
+    f"{SUPABASE_URL}/rest/v1/newsletter"
+    "?youtube_url=not.is.null"
+    "&youtube_views=is.null"
+    "&select=*"
+)
+res = requests.get(url, headers=HEADERS)
 videos = res.json()
+print("Supabase 조회수 업데이트 대상 rows:", videos)
 
-for video in videos:
-    row_id = video['id']
-    youtube_url = video['youtube_url']
+if not videos:
+    print("✅ 업데이트할 영상 없음.")
+    exit()
 
-    # video_id 추출
-    video_id = youtube_url.split("v=")[-1].split("&")[0] if "v=" in youtube_url else youtube_url.split("/")[-1]
+row = videos[0]
+row_id = row['id']
+youtube_url = row['youtube_url']
 
-    # 2) 유튜브 Data API 호출
-    yt_url = f"https://www.googleapis.com/youtube/v3/videos?part=statistics&id={video_id}&key={YOUTUBE_API_KEY}"
-    yt_res = requests.get(yt_url).json()
-    view_count = int(yt_res["items"][0]["statistics"]["viewCount"])
+# === 2) OAuth token.json 가져오기 (upload_to_youtube.py와 동일) ===
+sign_res = requests.post(
+    f"{SUPABASE_URL}/storage/v1/object/sign/youtube-oauth/token.json",
+    headers=HEADERS,
+    json={"expiresIn": 3600}
+)
+print("Signed URL response:", sign_res.status_code, sign_res.text)
+sign_res.raise_for_status()
 
-    print(f"Row ID: {row_id} | Views: {view_count}")
+signed_url = sign_res.json()["signedURL"]
+download_url = f"{SUPABASE_URL}/storage/v1{signed_url}"
 
-    # 3) Supabase에 조회수 업데이트
-    patch = requests.patch(
-        f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
-        headers=HEADERS,
-        json={
-            "youtube_views": view_count,
-            "youtube_views_last_updated": datetime.now().isoformat()
-        }
-    )
-    print(f"Updated row {row_id}: {patch.status_code}")
+file_resp = requests.get(download_url)
+print("Signed URL download status:", file_resp.status_code)
 
-print("✅ 조회수 갱신 완료")
+if file_resp.status_code == 200:
+    with open("token.json", "wb") as f:
+        f.write(file_resp.content)
+    print("✅ OAuth 파일 다운로드 완료")
+else:
+    print("❌ Signed URL 다운로드 실패:", file_resp.text)
+    exit(1)
+
+# === 3) 유튜브 API 인증 ===
+SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
+CLIENT_SECRETS_FILE = "client_secret.json"
+
+creds = None
+if os.path.exists("token.json"):
+    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(google.auth.transport.requests.Request())
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+        creds = flow.run_console()
+    with open("token.json", "w") as token:
+        token.write(creds.to_json())
+
+youtube = build("youtube", "v3", credentials=creds)
+
+# === 4) 조회수 가져오기 ===
+video_id = youtube_url.split("/")[-1]
+
+response = youtube.videos().list(
+    part="statistics",
+    id=video_id
+).execute()
+
+view_count = response['items'][0]['statistics']['viewCount']
+print(f"✅ 현재 조회수: {view_count}")
+
+# === 5) Supabase에 업데이트 ===
+patch = requests.patch(
+    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
+    headers={
+        "apikey": SUPABASE_API_KEY,
+        "Authorization": f"Bearer {SUPABASE_API_KEY}",
+        "Content-Type": "application/json"
+    },
+    json={"youtube_views": int(view_count)}
+)
+
+print("PATCH youtube_views response:", patch.status_code, patch.text)
+print("✅ DB youtube_views 업데이트 완료")
