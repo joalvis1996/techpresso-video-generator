@@ -57,7 +57,7 @@ else:
     print("❌ Signed URL 다운로드 실패:", file_resp.text)
     exit(1)
 
-# === 3) 유튜브 API 인증 ===
+# === 3) 유튜브 인증 ===
 SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
 CLIENT_SECRETS_FILE = "client_secret.json"
 
@@ -72,7 +72,6 @@ if not creds or not creds.valid:
         creds = flow.run_console()
     with open("token.json", "w") as token:
         token.write(creds.to_json())
-
 youtube = build("youtube", "v3", credentials=creds)
 
 # === 4) 조회수 가져오기 ===
