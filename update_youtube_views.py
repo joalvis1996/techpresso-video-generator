@@ -76,25 +76,31 @@ youtube = build("youtube", "v3", credentials=creds)
 
 # === 4) 조회수 가져오기 ===
 video_id = youtube_url.split("/")[-1]
-
 response = youtube.videos().list(
     part="statistics",
     id=video_id
 ).execute()
 
-view_count = response['items'][0]['statistics']['viewCount']
+items = response.get('items', [])
+if not items:
+    print(f"❌ 해당 Video ID '{video_id}' 로는 조회수를 가져올 수 없습니다.")
+    exit(1)
+
+view_count = items[0]['statistics'].get('viewCount')
 print(f"✅ 현재 조회수: {view_count}")
 
 # === 5) Supabase에 업데이트 ===
-patch = requests.patch(
-    f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
-    headers={
-        "apikey": SUPABASE_API_KEY,
-        "Authorization": f"Bearer {SUPABASE_API_KEY}",
-        "Content-Type": "application/json"
-    },
-    json={"youtube_views": int(view_count)}
-)
-
-print("PATCH youtube_views response:", patch.status_code, patch.text)
-print("✅ DB youtube_views 업데이트 완료")
+if view_count is not None:
+    patch = requests.patch(
+        f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
+        headers={
+            "apikey": SUPABASE_API_KEY,
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={"youtube_views": int(view_count)}
+    )
+    print("PATCH youtube_views response:", patch.status_code, patch.text)
+    print("✅ DB youtube_views 업데이트 완료")
+else:
+    print(f"❗️ Video ID {video_id} 의 view_count가 None 입니다. DB 업데이트 생략")
