@@ -15,26 +15,21 @@ HEADERS = {
     "Authorization": f"Bearer {SUPABASE_API_KEY}"
 }
 
-# === 1) youtube_url은 있으나 youtube_views가 null인 row만 가져오기 ===
+# === 1) youtube_url이 있는 모든 row 가져오기 ===
 url = (
     f"{SUPABASE_URL}/rest/v1/newsletter"
     "?youtube_url=not.is.null"
-    "&youtube_views=is.null"
     "&select=*"
 )
 res = requests.get(url, headers=HEADERS)
 videos = res.json()
-print("Supabase 조회수 업데이트 대상 rows:", videos)
+print(f"조회수 갱신 대상 rows ({len(videos)}):", [v["id"] for v in videos])
 
 if not videos:
     print("✅ 업데이트할 영상 없음.")
     exit()
 
-row = videos[0]
-row_id = row['id']
-youtube_url = row['youtube_url']
-
-# === 2) OAuth token.json 가져오기 (upload_to_youtube.py와 동일) ===
+# === 2) OAuth token.json 가져오기 ===
 sign_res = requests.post(
     f"{SUPABASE_URL}/storage/v1/object/sign/youtube-oauth/token.json",
     headers=HEADERS,
@@ -74,33 +69,37 @@ if not creds or not creds.valid:
         token.write(creds.to_json())
 youtube = build("youtube", "v3", credentials=creds)
 
-# === 4) 조회수 가져오기 ===
-video_id = youtube_url.split("/")[-1]
-response = youtube.videos().list(
-    part="statistics",
-    id=video_id
-).execute()
+# === 4) 모든 row 반복해서 조회수 가져오고 DB 업데이트 ===
+for row in videos:
+    row_id = row['id']
+    youtube_url = row['youtube_url']
+    video_id = youtube_url.split("/")[-1]
 
-items = response.get('items', [])
-if not items:
-    print(f"❌ 해당 Video ID '{video_id}' 로는 조회수를 가져올 수 없습니다.")
-    exit(1)
+    response = youtube.videos().list(
+        part="statistics",
+        id=video_id
+    ).execute()
 
-view_count = items[0]['statistics'].get('viewCount')
-print(f"✅ 현재 조회수: {view_count}")
+    items = response.get('items', [])
+    if not items:
+        print(f"❌ Video ID '{video_id}' 조회 실패. row_id: {row_id}")
+        continue
 
-# === 5) Supabase에 업데이트 ===
-if view_count is not None:
-    patch = requests.patch(
-        f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
-        headers={
-            "apikey": SUPABASE_API_KEY,
-            "Authorization": f"Bearer {SUPABASE_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={"youtube_views": int(view_count)}
-    )
-    print("PATCH youtube_views response:", patch.status_code, patch.text)
-    print("✅ DB youtube_views 업데이트 완료")
-else:
-    print(f"❗️ Video ID {video_id} 의 view_count가 None 입니다. DB 업데이트 생략")
+    view_count = items[0]['statistics'].get('viewCount')
+    print(f"✅ Video ID {video_id} 현재 조회수: {view_count}")
+
+    if view_count is not None:
+        patch = requests.patch(
+            f"{SUPABASE_URL}/rest/v1/newsletter?id=eq.{row_id}",
+            headers={
+                "apikey": SUPABASE_API_KEY,
+                "Authorization": f"Bearer {SUPABASE_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={"youtube_views": int(view_count)}
+        )
+        print(f"PATCH row_id={row_id} response:", patch.status_code, patch.text)
+    else:
+        print(f"❗️ Video ID {video_id} view_count=None → DB 업데이트 생략")
+
+print("✅ 모든 row 조회수 갱신 완료")
