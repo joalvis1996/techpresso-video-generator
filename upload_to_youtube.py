@@ -77,8 +77,7 @@ else:
     exit(1)
 
 # === 4) 유튜브 인증 ===
-# === 4) 유튜브 인증 ===
-SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 CLIENT_SECRETS_FILE = "client_secret.json"
 
 creds = None
