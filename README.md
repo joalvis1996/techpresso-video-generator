@@ -55,4 +55,21 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
 ---
 
 **[시나리오 2]**<br>
- 새로운 기사 감지 → Gemini로 뉴스 대본 변환 → 변환된 대본 Supabase 업데이트 → Google TTS로 음성 생성 → Supabase Edge Function으로 TTS 업로드 → 이미지 생성 요청 → 1초 대기 후 완료"
+ 새로운 기사 감지 → Gemini로 뉴스 대본 변환 → 변환된 대본 Supabase 업데이트 → Google TTS로 음성 생성 → Supabase Edge Function으로 TTS 업로드 → 이미지 생성 요청
+
+
+1. 새로운 뉴스레터 감지 - supabase.realtime 기능 활용
+    - newsletter 테이블의 INSERT 트리거 사용 (row 추가 시 자동으로 실행)
+    - DB 변경 이벤트 감지 (Make와 Supabase의 Watch Events 모듈 사용)
+    - output은 감지된 레코드 (id, title, content, created_at 등)
+
+2. 뉴스 대본 변환 - Gemini API 활용
+    - 기사 번역본을 뉴스 방송용 대본으로 변환
+    - news_style_content 칼럼 업데이트 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
+    <img src="./assets/img/gemini_prompt_news_style_content.png" alt="뉴스 대본 생성" width="700"/>
+
+3. 음성 파일 생성 - Google Cloud TTS API 활용
+    - 앞서 저장한 news_style_content 텍스트를 그대로 음성으로 변환
+    - 요청 파라미터: ko-KR, Wavenet, mp3
+    <img src="./assets/img/google_cloud_tts.png" alt="뉴스 음성 파일 생성" width="700"/>
+
