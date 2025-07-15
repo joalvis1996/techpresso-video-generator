@@ -71,5 +71,6 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
 3. 음성 파일 생성 - Google Cloud TTS API 활용
     - 앞서 저장한 news_style_content 텍스트를 그대로 음성으로 변환
     - 요청 파라미터: ko-KR, Wavenet, mp3
+    - output은 base64 인코딩된 음성 데이터
     <img src="./assets/img/google_cloud_tts.png" alt="뉴스 음성 파일 생성" width="700"/>
 
