@@ -14,12 +14,12 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
 - Custom Webhook 모듈이 JSON 수신
 - 이미 저장한 기사인지 체크 (Supabase REST API - GET 요청)
 - Query string은 bundle 데이터 중 subject 항목을 이용 
-<img src="./assets/img/supabase_check_duplicate.png" alt="중복 체크" width="700"/>
+    <img src="./assets/img/supabase_check_duplicate.png" alt="중복 체크" width="700"/>
 
 - true이면 기존에 저장된 row 반환 (중복이므로 시나리오 종료)
 - false이면 빈 배열 [] 반환 (다음 모듈 실행)
 - Router 모듈 사용하여 true, false 분기
-<img src="./assets/img/supabase_duplicate_router.png" alt="분기" width="700"/>
+    <img src="./assets/img/supabase_duplicate_router.png" alt="분기" width="700"/>
 
 3. 기사 번역 및 내용 가공 - Gemini API 활용
 
