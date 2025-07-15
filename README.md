@@ -66,7 +66,7 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
 2. 뉴스 대본 변환 - Gemini API 활용
     - 기사 번역본을 뉴스 방송용 대본으로 변환
     - news_style_content 칼럼 업데이트 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
-    <img src="./assets/img/gemini_prompt_news_style_content.png" alt="뉴스 대본 생성" width="700"/>
+    <img src="./assets/img/gemini_prompt_news_style.png" alt="뉴스 대본 생성" width="700"/>
 
 3. 음성 파일 생성 - Google Cloud TTS API 활용
     - 앞서 저장한 news_style_content 텍스트를 그대로 음성으로 변환
