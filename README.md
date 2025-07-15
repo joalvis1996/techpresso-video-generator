@@ -14,7 +14,8 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
 - Custom Webhook 모듈이 JSON 수신
 - 이미 저장한 기사인지 체크 (Supabase REST API - GET 요청)
 - Query string은 bundle 데이터 중 subject 항목을 이용 
-![중복 체크](./assets/img/supabase_check_duplicate.png)
+<img src="./assets/img/supabase_check_duplicate.png" alt="기사 저장" width="400"/>
+<!-- ![중복 체크](./assets/img/supabase_check_duplicate.png) -->
 
 - true이면 기존에 저장된 row 반환 (중복이므로 시나리오 종료)
 - false이면 빈 배열 [] 반환 (다음 모듈 실행)
