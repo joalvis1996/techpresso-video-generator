@@ -1,8 +1,7 @@
-# techpresso-video-generator
+###[시나리오 1]
+Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사면 Gemini로 번역 및 정제 → JSON 파싱 후 배열로 묶어 순차 저장 → Supabase에 Insert
 
 1. 뉴스레터 메일 수집 및 파싱 자동화 - GAS (Google Apps Script) 활용
-
-“외부 뉴스 콘텐츠를 자동으로 가져와서 필요 없는 것 쳐내고, 딱 쓰기 좋은 JSON으로 만들어 자동화 파이프라인에 연결해주는 역할”
 
 - 메일을 직접 열지 않고 'techpresso' 발신자 키워드로 메일 찾음. 스케줄러 기능을 통해 하루 단위로 자동 실행.
 - 메일 본문(HTML)에서 핵심 내용만 파싱 (제목, 상세 내용, 관련 이모지)
@@ -22,10 +21,10 @@
 - Router 모듈 사용하여 true, false 분기
 ![분기](./assets/img/supabase_duplicate_router.png)
 
-3. 기사 번역 및 내용 가공 (Gemini API)
+3. 기사 번역 및 내용 가공 - Gemini API 활용
 
 - 영어에서 한국어로 기사 내용 번역
-- 뉴스 대본 형식으로 내용 가공 
+- 각 기사마다 키워드 추출 
 ![프롬프트](./assets/img/gemini_prompt_translate.png)
 
 - Gemini 응답값 정제
@@ -48,7 +47,13 @@
     ]
     ```
     - 배열에 저장된 원소를 하나씩 꺼내서 반복 실행 (Iterator 모듈 사용)
-    - DB에 기사 제목, 내용, 뉴스 형식 대본 등을 저장 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
+    - DB에 기사 제목, 내용, 키워드를 저장 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
 
     ![기사 저장](./assets/img/supabase_save_news.png)
+    ![DB 저장 예시](./assets/img/supabase_news_example.png)
 
+
+---
+
+###[시나리오 2]
+ 새로운 기사 감지 → Gemini로 뉴스 대본 변환 → 변환된 대본 Supabase 업데이트 → Google TTS로 음성 생성 → Supabase Edge Function으로 TTS 업로드 → 이미지 생성 요청 → 1초 대기 후 완료"
