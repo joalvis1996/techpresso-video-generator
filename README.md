@@ -1,4 +1,4 @@
-###[시나리오 1]
+**[시나리오 1]**
 Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사면 Gemini로 번역 및 정제 → JSON 파싱 후 배열로 묶어 순차 저장 → Supabase에 Insert
 
 1. 뉴스레터 메일 수집 및 파싱 자동화 - GAS (Google Apps Script) 활용
@@ -55,5 +55,5 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
 
 ---
 
-###[시나리오 2]
+**[시나리오 2]**
  새로운 기사 감지 → Gemini로 뉴스 대본 변환 → 변환된 대본 Supabase 업데이트 → Google TTS로 음성 생성 → Supabase Edge Function으로 TTS 업로드 → 이미지 생성 요청 → 1초 대기 후 완료"
