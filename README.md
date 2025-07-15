@@ -34,19 +34,31 @@
     - 전 단계에서 출력된 다수의 레코드들을 하나의 배열로 합침(Array Aggregator 모듈 사용)
 
     ex. 번역 결과가 3개인 경우
-    {title: "...", news_style_content: "..."}
-    {title: "...", news_style_content: "..."}
-    {title: "...", news_style_content: "..."}
+    ```json
+{ "title": "...", "news_style_content": "..." }
+{ "title": "...", "news_style_content": "..." }
+{ "title": "...", "news_style_content": "..." }
 
     위 형식을 아래 배열로 변환
 
-    [
-        { "title": "...", "news_style_content": "..." },
-        { "title": "...", "news_style_content": "..." },
-        { "title": "...", "news_style_content": "..." }
-    ]
+    ```json
+[
+  {
+    "title": "...",
+    "news_style_content": "..."
+  },
+  {
+    "title": "...",
+    "news_style_content": "..."
+  },
+  {
+    "title": "...",
+    "news_style_content": "..."
+  }
+]
+```
 
-    - 배열에 저장된 원소를 하나씩 꺼내서 반복 실행 (Iterator 모듈 사용)
+    - 위 배열에 저장된 원소를 하나씩 꺼내서 반복 실행 (Iterator 모듈 사용)
     - DB에 기사 제목, 내용, 뉴스 형식 대본 등을 저장 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
 
     ![기사 저장](./assets/img/supabase_save_news.png)
