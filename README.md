@@ -10,7 +10,7 @@
     
     <details>
         <summary>스크립트 실행 예시</summary>
-        <img src="./assets/img/apps_script_fetch.png" alt="스크립트 실행 예시" width="700"/>
+        <img src="./assets/img/apps_script_fetch.png" width="700"/>
     <details>
     
 2. Make 시나리오 시작 및 중복 체크
@@ -18,18 +18,31 @@
 - Custom Webhook 모듈이 JSON 수신
 - 이미 저장한 기사인지 체크 (Supabase REST API - GET 요청)
 - Query string은 bundle 데이터 중 subject 항목을 이용 
-    <img src="./assets/img/supabase_check_duplicate.png" alt="중복 체크" width="700"/>
+
+    <details>
+        <summary>기사 중복 체크</summary>
+        <img src="./assets/img/supabase_check_duplicate.png" width="700"/>
+    <details>
 
 - true이면 기존에 저장된 row 반환 (중복이므로 시나리오 종료)
 - false이면 빈 배열 [] 반환 (다음 모듈 실행)
 - Router 모듈 사용하여 true, false 분기
-    <img src="./assets/img/supabase_duplicate_router.png" alt="분기" width="700"/>
 
+    <details>
+        <summary>기사 중복 체크</summary>
+        <img src="./assets/img/supabase_duplicate_router.png" width="700"/>
+    <details>
+    
 3. 기사 번역 및 내용 가공 - Gemini API 활용
 
 - 영어에서 한국어로 기사 내용 번역
 - 각 기사마다 키워드 추출 
-    <img src="./assets/img/gemini_prompt_translate.png" alt="프롬프트" width="700"/>
+
+    <details>
+        <summary>번역 프롬프트 내용</summary>
+        <img src="./assets/img/gemini_prompt_translate.png" width="700"/>
+    <details>
+   
 - Gemini 응답값 정제
     - 불필요한 따옴표, 이스케이프 문자 제거 (Text Parser 모듈 사용)
     - 문자열 JSON 으로 변환 (JSON 모듈 사용)
@@ -52,9 +65,11 @@
     - 배열에 저장된 원소를 하나씩 꺼내서 반복 실행 (Iterator 모듈 사용)
     - DB에 기사 제목, 내용, 키워드를 저장 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
 
-    <img src="./assets/img/supabase_save_news.png" alt="기사 저장" width="700"/>
-    <img src="./assets/img/supabase_news_example.png" alt="DB 저장 예시" width="700"/>
-
+    <details>
+        <summary>기사 DB 저장 예시</summary>
+        <img src="./assets/img/supabase_save_news.png" width="700"/>
+        <img src="./assets/img/supabase_news_example.png" width="700"/>
+    <details>
 
 ---
 
