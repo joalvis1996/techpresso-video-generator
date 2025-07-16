@@ -84,16 +84,21 @@
 2. 뉴스 대본 변환 - Gemini API 활용
     - 기사 번역본을 뉴스 방송용 대본으로 변환
     - news_style_content 칼럼 업데이트 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
-    <img src="./assets/img/gemini_prompt_news_style.png" alt="뉴스 대본 생성" width="700"/>
+
+    <details>
+        <summary>뉴스 대본 생성</summary>
+        <img src="./assets/img/gemini_prompt_news_style.png" width="700"/>
+    <details>
 
 3. 음성 파일 생성 - Google Cloud TTS API 활용
     - 앞서 저장한 news_style_content 텍스트를 그대로 음성으로 변환
     - 요청 파라미터: ko-KR, Wavenet, mp3
     - output은 base64 인코딩된 음성 데이터
-    <img src="./assets/img/google_cloud_tts.png" alt="뉴스 음성 파일 생성" width="700"/>
 
-
-
+    <details>
+        <summary>뉴스 음성 파일 생성</summary>
+        <img src="./assets/img/google_cloud_tts.png" width="700"/>
+    <details>
 
 ---
 
@@ -102,13 +107,23 @@
 1. Google Cloud TTS 400 인증 오류 
 
     위치: Content Converter 시나리오 내 TTS 모듈 
-    <img src="./assets/img/errors/google_cloud_tts_module.png" alt="TTS 모듈" width="700"/>
+    <details>
+        <summary>Make 내 TTS 모듈</summary>
+        <img src="./assets/img/errors/google_cloud_tts_module.png" width="700"/>
+    <details>
+   
 
     에러 문구<br>
-    <img src="./assets/img/errors/google_cloud_tts_400.png" alt="400 에러" width="700"/>
+    <details>
+        <summary>400 에러</summary>
+        <img src="./assets/img/errors/google_cloud_tts_400.png" width="700"/>
+    <details>
+   
 
     해결 방법<br>
     Google Cloud Console 접속 -> API 및 서비스 -> 사용자 인증 정보 -> 사용자 인증 정보 만들기 -> OAuth 클라이언트 ID -> 웹 어플리케이션 선택,  리디렉션 URI (https://www.integromat.com/oauth/cb/google-custom) 입력 후 만들기 -> Make 모듈 설정에서 client ID 및 secret 재입력 
-    <img src="./assets/img/errors/google_cloud_oauth.png" alt="OAuth 재인증" width="700"/>
-
+    <details>
+        <summary>OAuth 재인증</summary>
+        <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
+    <details>
     
