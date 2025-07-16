@@ -29,7 +29,7 @@
 - Router 모듈 사용하여 true, false 분기
 
     <details>
-        <summary>기사 중복 체크</summary>
+        <summary>시나리오 분기</summary>
         <img src="./assets/img/supabase_duplicate_router.png" width="700"/>
     <details>
     
@@ -83,8 +83,7 @@
 
 2. 뉴스 대본 변환 - Gemini API 활용
     - 기사 번역본을 뉴스 방송용 대본으로 변환
-    - news_style_content 칼럼 업데이트 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)
-
+    - news_style_content 칼럼 업데이트 (HTTP 모듈 사용, Supabase REST API - PATCH 요청)<br>
     <details>
         <summary>뉴스 대본 생성</summary>
         <img src="./assets/img/gemini_prompt_news_style.png" width="700"/>
@@ -93,7 +92,7 @@
 3. 음성 파일 생성 - Google Cloud TTS API 활용
     - 앞서 저장한 news_style_content 텍스트를 그대로 음성으로 변환
     - 요청 파라미터: ko-KR, Wavenet, mp3
-    - output은 base64 인코딩된 음성 데이터
+    - output은 base64 인코딩된 음성 데이터<br>
 
     <details>
         <summary>뉴스 음성 파일 생성</summary>
@@ -111,7 +110,6 @@
         <summary>Make 내 TTS 모듈</summary>
         <img src="./assets/img/errors/google_cloud_tts_module.png" width="700"/>
     <details>
-   
 
     에러 문구<br>
     <details>
