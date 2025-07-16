@@ -74,3 +74,24 @@ Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사�
     - output은 base64 인코딩된 음성 데이터
     <img src="./assets/img/google_cloud_tts.png" alt="뉴스 음성 파일 생성" width="700"/>
 
+
+
+
+---
+
+**[에러]**<br>
+
+1. Google Cloud TTS 400 인증 오류 
+
+    위치: Content Converter 시나리오 내 TTS 모듈 
+    <img src="./assets/img/errors/google_cloud_tts_module.png" alt="TTS 모듈" width="700"/>
+
+    에러 문구
+    <img src="./assets/img/errors/google_cloud_tts_400.png" alt="400 에러 width="700"/>
+
+    해결 방법
+    Google Cloud Console 접속 -> API 및 서비스 -> 사용자 인증 정보 -> 사용자 인증 정보 만들기 -> OAuth 클라이언트 ID -> 웹 어플리케이션 선택,  리디렉션 URI (https://www.integromat.com/oauth/cb/google-custom) 입력 후 만들기 -> Make 모듈 설정에서 client ID 및 secret 재입력 
+    
+    <img src="./assets/img/errors/google_cloud_oauth.png" alt="OAuth 재인증" width="700"/>
+
+    
