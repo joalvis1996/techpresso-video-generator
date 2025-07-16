@@ -11,7 +11,7 @@
     <details>
         <summary>스크립트 실행 예시</summary>
         <img src="./assets/img/apps_script_fetch.png" width="700"/>
-    <details>
+    </details>
     
 2. Make 시나리오 시작 및 중복 체크
 
@@ -22,7 +22,7 @@
     <details>
         <summary>기사 중복 체크</summary>
         <img src="./assets/img/supabase_check_duplicate.png" width="700"/>
-    <details>
+    </details>
 
 - true이면 기존에 저장된 row 반환 (중복이므로 시나리오 종료)
 - false이면 빈 배열 [] 반환 (다음 모듈 실행)
@@ -31,7 +31,7 @@
     <details>
         <summary>시나리오 분기</summary>
         <img src="./assets/img/supabase_duplicate_router.png" width="700"/>
-    <details>
+    </details>
     
 3. 기사 번역 및 내용 가공 - Gemini API 활용
 
@@ -41,7 +41,7 @@
     <details>
         <summary>번역 프롬프트 내용</summary>
         <img src="./assets/img/gemini_prompt_translate.png" width="700"/>
-    <details>
+    </details>
    
 - Gemini 응답값 정제
     - 불필요한 따옴표, 이스케이프 문자 제거 (Text Parser 모듈 사용)
@@ -69,7 +69,7 @@
         <summary>기사 DB 저장 예시</summary>
         <img src="./assets/img/supabase_save_news.png" width="700"/>
         <img src="./assets/img/supabase_news_example.png" width="700"/>
-    <details>
+    </details>
 
 ---
 
@@ -87,7 +87,7 @@
     <details>
         <summary>뉴스 대본 생성</summary>
         <img src="./assets/img/gemini_prompt_news_style.png" width="700"/>
-    <details>
+    </details>
 
 3. 음성 파일 생성 - Google Cloud TTS API 활용
     - 앞서 저장한 news_style_content 텍스트를 그대로 음성으로 변환
@@ -97,7 +97,7 @@
     <details>
         <summary>뉴스 음성 파일 생성</summary>
         <img src="./assets/img/google_cloud_tts.png" width="700"/>
-    <details>
+    /details>
 
 ---
 
@@ -105,23 +105,23 @@
 
 1. Google Cloud TTS 400 인증 오류 
 
-    위치: Content Converter 시나리오 내 TTS 모듈 
-    <details>
-        <summary>Make 내 TTS 모듈</summary>
-        <img src="./assets/img/errors/google_cloud_tts_module.png" width="700"/>
-    <details>
+    - 위치: Content Converter 시나리오 내 TTS 모듈 
+        <details>
+            <summary>Make 내 TTS 모듈</summary>
+            <img src="./assets/img/errors/google_cloud_tts_module.png" width="700"/>
+        </details>
 
-    에러 문구<br>
-    <details>
-        <summary>400 에러</summary>
-        <img src="./assets/img/errors/google_cloud_tts_400.png" width="700"/>
-    <details>
+    - 에러 문구<br>
+        <details>
+            <summary>400 에러</summary>
+            <img src="./assets/img/errors/google_cloud_tts_400.png" width="700"/>
+        </details>
    
 
-    해결 방법<br>
+    - 해결 방법<br>
     Google Cloud Console 접속 -> API 및 서비스 -> 사용자 인증 정보 -> 사용자 인증 정보 만들기 -> OAuth 클라이언트 ID -> 웹 어플리케이션 선택,  리디렉션 URI (https://www.integromat.com/oauth/cb/google-custom) 입력 후 만들기 -> Make 모듈 설정에서 client ID 및 secret 재입력 
-    <details>
-        <summary>OAuth 재인증</summary>
-        <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
-    <details>
+        <details>
+            <summary>OAuth 재인증</summary>
+            <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
+        </details>
     
