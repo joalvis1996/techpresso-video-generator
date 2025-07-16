@@ -7,8 +7,12 @@
 - 메일 본문(HTML)에서 핵심 내용만 파싱 (제목, 상세 내용, 관련 이모지)
 - 파싱된 기사 내용을 '제목', '본문', '원문링크' 형태의 JSON 배열로 정리
 - UrlFetchApp.fetch() 사용하여 Make에서 생성한 Webhook URL로 POST 요청 (Make 시나리오 시작을 위함)
-    <img src="./assets/img/apps_script_fetch.png" alt="스크립트 실행 예시" width="700"/>
-
+    
+    <details>
+        <summary>스크립트 실행 예시</summary>
+        <img src="./assets/img/apps_script_fetch.png" alt="스크립트 실행 예시" width="700"/>
+    <details>
+    
 2. Make 시나리오 시작 및 중복 체크
 
 - Custom Webhook 모듈이 JSON 수신
