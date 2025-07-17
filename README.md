@@ -97,7 +97,33 @@
     <details>
         <summary>뉴스 음성 파일 생성</summary>
         <img src="./assets/img/google_cloud_tts.png" width="700"/>
-    /details>
+    </details>
+
+4. TTS 파일 업로드 - Supabase Edge Function 활용  
+   - Google TTS에서 받은 base64 인코딩된 음성 데이터를 Supabase Storage에 mp3로 저장
+    <details>
+        <summary>Base64</summary>
+    </details>
+
+   - 저장 후 해당 audio_url을 newsletter 테이블에 업데이트  
+   - Deno 기반 Edge Function으로 구현됨
+
+    <details>
+        <summary>convertAndUploadTTS 함수</summary>
+        ```
+        const audioBuffer = Uint8Array.from(atob(audioContent), (c)=>c.charCodeAt(0));
+
+        // storage에 업로드 시 변환된 데이터 확장자 및 contentType을 지정하여 업로드
+        const { error: uploadError } = await supabase
+            .storage
+            .from("newsletter-audio")
+            .upload(`${newsletterId}.mp3`, audioBuffer, {
+            contentType: "audio/mpeg",
+            upsert: true
+            });
+        ```
+    </details>
+
 
 ---
 
@@ -119,7 +145,15 @@
    
 
     - 해결 방법<br>
-    Google Cloud Console 접속 -> API 및 서비스 -> 사용자 인증 정보 -> 사용자 인증 정보 만들기 -> OAuth 클라이언트 ID -> 웹 어플리케이션 선택,  리디렉션 URI (https://www.integromat.com/oauth/cb/google-custom) 입력 후 만들기 -> Make 모듈 설정에서 client ID 및 secret 재입력 
+        1. Google Cloud Console 접속
+        2. `API 및 서비스` → `사용자 인증 정보`
+        3. `사용자 인증 정보 만들기` 선택
+        4. `OAuth 클라이언트 ID` 선택
+        5. **플랫폼**: `웹 어플리케이션` 선택  
+        - 리디렉션 URI: [`https://www.integromat.com/oauth/cb/google-custom`](https://www.integromat.com/oauth/cb/google-custom)
+        6. 클라이언트 ID 및 Secret 생성
+        7. Make 모듈 설정에서 `client ID` 및 `secret` 값 재입력
+        
         <details>
             <summary>OAuth 재인증</summary>
             <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
