@@ -99,7 +99,7 @@
         <img src="./assets/img/google_cloud_tts.png" width="700"/>
     </details>
 
-4. TTS 파일 업로드 - Supabase Edge Function 활용  
+4. TTS 음성 일 업로드 - Supabase Edge Function 활용  
    - Google TTS에서 받은 base64 인코딩된 음성 데이터를 Supabase Storage에 mp3로 저장
     <details>
         <summary>Base64</summary>
@@ -110,7 +110,6 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
-        ```
         const audioBuffer = Uint8Array.from(atob(audioContent), (c)=>c.charCodeAt(0));
 
         // storage에 업로드 시 변환된 데이터 확장자 및 contentType을 지정하여 업로드
@@ -121,6 +120,32 @@
             contentType: "audio/mpeg",
             upsert: true
             });
+        ```
+    </details>
+
+5. AI 이미지 생성 및 업로드 
+    - Cloudflare API를 활용하여 Stable Diffusion 모델 기반 이미지 생성
+    - 앞서 저장한 keyword를 바탕으로 생성 
+
+    <details>
+        <summary>이미지 생성 프롬프트</summary>
+        <img src="./assets/img/cloudflare_image_api.png" width="700"/>
+    </details>
+
+    <details>
+        <summary>convertAndUploadTTS 함수</summary>
+        const cfApiUrl = "https://api.cloudflare.com/client/v4/accounts/63664cadd55e384ef4bb81a0cff74a32/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0";
+        const cfRes = await fetch(cfApiUrl, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer 토큰`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                prompt,
+                num_steps
+            })
+        });
         ```
     </details>
 
