@@ -110,6 +110,7 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
+        ```
         const audioBuffer = Uint8Array.from(atob(audioContent), (c)=>c.charCodeAt(0));
 
         // storage에 업로드 시 변환된 데이터 확장자 및 contentType을 지정하여 업로드
@@ -134,6 +135,8 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
+        ```
+        // Cloudflare API 호출
         const cfApiUrl = "https://api.cloudflare.com/client/v4/accounts/63664cadd55e384ef4bb81a0cff74a32/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0";
         const cfRes = await fetch(cfApiUrl, {
             method: "POST",
@@ -148,6 +151,9 @@
         });
         ```
     </details>
+
+    - storage에 업로드 가능한 Uint8Array로 변환후 업로드
+    - 업로드 완료 시 public URL 생성 및 DB에 저장
 
 
 ---
