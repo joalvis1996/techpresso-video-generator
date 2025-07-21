@@ -111,19 +111,18 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
-        ```
-        const audioBuffer = Uint8Array.from(atob(audioContent), (c)=>c.charCodeAt(0));
+    ```ts
+    const audioBuffer = Uint8Array.from(atob(audioContent), (c)=>c.charCodeAt(0));
 
-        // storage에 업로드 시 변환된 데이터 확장자 및 contentType을 지정하여 업로드
-        const { error: uploadError } = await supabase
-            .storage
-            .from("newsletter-audio")
-            .upload(`${newsletterId}.mp3`, audioBuffer, {
-            contentType: "audio/mpeg",
-            upsert: true
-            });
-        ```
-    </details>
+    // storage에 업로드 시 변환된 데이터 확장자 및 contentType을 지정하여 업로드
+    const { error: uploadError } = await supabase
+        .storage
+        .from("newsletter-audio")
+        .upload(`${newsletterId}.mp3`, audioBuffer, {
+        contentType: "audio/mpeg",
+        upsert: true
+        });
+    ```
 
 5. AI 이미지 생성 및 업로드 - Supabase Edge Function 활용  
     - Cloudflare API를 활용하여 Stable Diffusion 모델 기반 이미지 생성
