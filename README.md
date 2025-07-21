@@ -122,7 +122,6 @@
         contentType: "audio/mpeg",
         upsert: true
         });
-    ```
 
 5. AI 이미지 생성 및 업로드 - Supabase Edge Function 활용  
     - Cloudflare API를 활용하여 Stable Diffusion 모델 기반 이미지 생성
