@@ -1,3 +1,29 @@
+뉴스레터 컨텐츠의 텍스트 데이터를 자동으로 영상화하고, Youtube에 업로드하며, 조회수를 추적 및 갱신하는 자동화 파이프라인입니다.
+
+이 프로젝트는 다음과 같은 기술 스택 및 자동화 흐름으로 구성되어 있습니다:
+
+- **Supabase**: 뉴스 콘텐츠 저장
+- **Gemini API**: 요약 및 대본 생성
+- **TTS API**: 음성 생성
+- **FFmpeg**: 영상 생성
+- **YouTube API**: 영상 업로드 및 통계 수집
+- **Make.com**: 뉴스 수집 및 Supabase 저장 자동화
+- **GitHub Actions**: 영상 제작 / 업로드 / 조회수 갱신 자동 실행
+
+주요 파일 구조:
+.
+├── .github/workflows/
+│   ├── generate_video.yml           # 영상 생성 자동화
+│   ├── upload_youtube_video.yml     # YouTube 업로드 자동화
+│   └── update_youtube_views.yml     # 조회수 업데이트 자동화
+├── generate_video.py                # Gemini, TTS, FFmpeg 영상 생성
+├── upload_to_youtube.py             # YouTube 업로드 스크립트
+├── update_youtube_views.py          # 조회수 갱신 스크립트
+├── generate_token.py                # OAuth 인증 토큰 생성기
+├── requirements.txt                 # 의존 패키지 목록
+└── README.md
+
+
 **[시나리오 1]**<br>
 실행 순서: Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사면 Gemini로 번역 및 정제 → JSON 파싱 후 배열로 묶어 순차 저장 → Supabase에 Insert
 
