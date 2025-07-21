@@ -106,7 +106,8 @@
     </details>
 
    - 저장 후 해당 audio_url을 newsletter 테이블에 업데이트  
-   - Deno 기반 Edge Function으로 구현됨
+   - Supabase Edge Function으로 서버리스 방식의 자동화 구현
+
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
@@ -124,9 +125,10 @@
         ```
     </details>
 
-5. AI 이미지 생성 및 업로드 
+5. AI 이미지 생성 및 업로드 - Supabase Edge Function 활용  
     - Cloudflare API를 활용하여 Stable Diffusion 모델 기반 이미지 생성
     - 앞서 저장한 keyword를 바탕으로 생성 
+   -  Supabase Edge Function으로 서버리스 방식의 자동화 구현
 
     <details>
         <summary>이미지 생성 프롬프트</summary>
@@ -135,22 +137,22 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
-        ```
-        // Cloudflare API 호출
-        const cfApiUrl = "https://api.cloudflare.com/client/v4/accounts/63664cadd55e384ef4bb81a0cff74a32/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0";
-        const cfRes = await fetch(cfApiUrl, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer 토큰`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                prompt,
-                num_steps
-            })
-        });
-        ```
-    </details>
+
+    ```ts
+    // Cloudflare API 호출
+    const cfApiUrl = "https://api.cloudflare.com/client/v4/accounts/63664cadd55e384ef4bb81a0cff74a32/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0";
+    const cfRes = await fetch(cfApiUrl, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer 토큰`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            prompt,
+            num_steps
+        })
+    });
+
 
     - storage에 업로드 가능한 Uint8Array로 변환후 업로드
     - 업로드 완료 시 public URL 생성 및 DB에 저장
