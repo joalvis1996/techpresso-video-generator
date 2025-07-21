@@ -103,11 +103,11 @@
    - Google TTS에서 받은 base64 인코딩된 음성 데이터를 Supabase Storage에 mp3로 저장
     <details>
         <summary>Base64</summary>
+        <img src="./assets/img/google_cloud_tts_output.png" width="700"/>
     </details>
 
    - 저장 후 해당 audio_url을 newsletter 테이블에 업데이트  
    - Supabase Edge Function으로 서버리스 방식의 자동화 구현
-
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
