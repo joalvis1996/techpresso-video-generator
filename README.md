@@ -95,14 +95,14 @@
     - output은 base64 인코딩된 음성 데이터<br>
 
     <details>
-        <summary>뉴스 음성 파일 생성</summary>
+        <summary>뉴스 음성 파일 생성 input</summary>
         <img src="./assets/img/google_cloud_tts.png" width="700"/>
     </details>
 
 4. TTS 음성 일 업로드 - Supabase Edge Function 활용  
    - Google TTS에서 받은 base64 인코딩된 음성 데이터를 Supabase Storage에 mp3로 저장
     <details>
-        <summary>Base64</summary>
+        <summary>Base64로 인코딩된 음성 output</summary>
         <img src="./assets/img/google_cloud_tts_output.png" width="700"/>
     </details>
 
