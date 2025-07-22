@@ -127,7 +127,7 @@
     <details>
         <summary>convertAndUploadTTS 함수</summary>
     </details>
-    
+
     ```ts
     const audioBuffer = Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0));
 
@@ -144,7 +144,7 @@
 5. AI 이미지 생성 및 업로드 - Supabase Edge Function 활용  
     - Cloudflare API를 활용하여 Stable Diffusion 모델 기반 이미지 생성
     - 앞서 저장한 keyword를 바탕으로 생성 
-   -  Supabase Edge Function으로 서버리스 방식의 자동화 구현
+    - Supabase Edge Function으로 서버리스 방식의 자동화 구현
 
     <details>
         <summary>이미지 생성 프롬프트</summary>
@@ -153,6 +153,7 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
+    </details>
 
     ```ts
     // Cloudflare API 호출
@@ -170,8 +171,8 @@
     });
 
 
-    - storage에 업로드 가능한 Uint8Array로 변환후 업로드
-    - 업로드 완료 시 public URL 생성 및 DB에 저장
+- storage에 업로드 가능한 Uint8Array로 변환후 업로드
+- 업로드 완료 시 public URL 생성 및 DB에 저장
 
 
 ---
