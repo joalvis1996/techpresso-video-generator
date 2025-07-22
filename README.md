@@ -10,7 +10,8 @@
 - **Make.com**: 뉴스 수집 및 Supabase 저장 자동화
 - **GitHub Actions**: 영상 제작 / 업로드 / 조회수 갱신 자동 실행
 
-주요 파일 구조
+주요 파일 구조:
+
 <img src="./assets/img/project_structure.png" width="700"/>
 
 **[시나리오 1]**<br>
