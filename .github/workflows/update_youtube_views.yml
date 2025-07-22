@@ -1,9 +1,6 @@
 name: Update YouTube Views
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: "0 * * * *"  # 매시간마다 실행
   workflow_dispatch:

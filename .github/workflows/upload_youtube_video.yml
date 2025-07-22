@@ -1,9 +1,6 @@
 name: Upload YouTube Shorts
 
 on:
-  # push:
-  #   branches:
-  #     - main
   # 오전 4시부터 10마다
   schedule:
     # 낮 12시~4시(KST) 10분마다
