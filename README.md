@@ -1,6 +1,5 @@
-뉴스레터 컨텐츠의 텍스트 데이터를 자동으로 영상화하고, Youtube에 업로드하며, 조회수를 추적 및 갱신하는 자동화 파이프라인입니다.
-
-이 프로젝트는 다음과 같은 기술 스택 및 자동화 흐름으로 구성되어 있습니다:
+뉴스레터 컨텐츠의 텍스트 데이터를 자동으로 영상화하고, Youtube에 업로드하며, 조회수를 추적 및 갱신하는 자동화 파이프라인.
+이 프로젝트는 다음과 같은 기술 스택 및 자동화 흐름으로 구성됨:
 
 - **Supabase**: 뉴스 콘텐츠 저장
 - **Gemini API**: 요약 및 대본 생성
@@ -127,7 +126,8 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
-
+    </details>
+    
     ```ts
     const audioBuffer = Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0));
 
