@@ -1,0 +1,29 @@
+name: Update YouTube Likes
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # 매시간마다 실행
+  workflow_dispatch:
+
+jobs:
+  update-likes:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install requests google-api-python-client google-auth google-auth-oauthlib
+
+      - name: Run update_youtube_likes.py
+        run: python update_youtube_likes.py
