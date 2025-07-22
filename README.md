@@ -10,10 +10,8 @@
 - **Make.com**: 뉴스 수집 및 Supabase 저장 자동화
 - **GitHub Actions**: 영상 제작 / 업로드 / 조회수 갱신 자동 실행
 
-<details>
-    <summary>주요 파일 구조</summary>
-    <img src="./assets/img/project_structure.png" width="700"/>
-</details>
+주요 파일 구조
+<img src="./assets/img/project_structure.png" width="700"/>
 
 **[시나리오 1]**<br>
 실행 순서: Webhook으로 뉴스 수신 → Supabase로 중복 여부 조회 → 새 기사면 Gemini로 번역 및 정제 → JSON 파싱 후 배열로 묶어 순차 저장 → Supabase에 Insert
