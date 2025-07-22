@@ -126,7 +126,6 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
-    </details>
 
     ```ts
     const audioBuffer = Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0));
@@ -153,7 +152,6 @@
 
     <details>
         <summary>convertAndUploadTTS 함수</summary>
-    </details>
 
     ```ts
     // Cloudflare API 호출
