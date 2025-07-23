@@ -61,6 +61,12 @@ with open(output_script_path, "w", encoding="utf-8") as f:
     f.write("\n".join(script_lines))
 
 print(f"📝 뉴스 스크립트 저장 완료 → {output_script_path}")
+
+# === 저장된 스크립트 내용 출력 ===
+print("\n📰 생성된 뉴스 스크립트 내용:")
+with open(output_script_path, "r", encoding="utf-8") as f:
+    print(f.read())
+
 exit()
 
 # === 5단계: 영상 제작 로직 (예시: 실제로는 ffmpeg 등 활용) ===
