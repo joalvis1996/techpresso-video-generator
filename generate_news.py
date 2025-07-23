@@ -42,17 +42,42 @@ if not new_subjects:
 first_subject, news_list = next(iter(new_subjects.items()))
 print("🎬 처리할 subject:", first_subject)
 
+# === 4단계: 뉴스 스크립트 구성 ===
+script_lines = []
+script_lines.append("오늘의 뉴스를 전해드립니다.\n")
 
-# # 이후 news_list를 가지고 스크립트 생성, TTS/비디오 생성, Supabase 저장 등 처리
+for idx, news in enumerate(news_list, 1):
+    content = news.get("news_style_content")
+    if content:
+        script_lines.append(f"[{idx}] {content.strip()}")
+        if idx < len(news_list):
+            script_lines.append("다음 뉴스입니다.\n")
 
-# # 예시: subject 기록용 dummy API 호출
-# requests.post(
-#     f"{SUPABASE_URL}/rest/v1/newsletter_videos",
-#     headers={
-#         "apikey": SUPABASE_API_KEY,
-#         "Authorization": f"Bearer {SUPABASE_API_KEY}",
-#         "Content-Type": "application/json"
-#     },
-#     json={"subject": first_subject, "included_newsletter_ids": ",".join(str(n["id"]) for n in news_list)}
-# )
-# print("✅ 처리된 subject 저장 완료:", first_subject)
+script_lines.append("\n이상으로 오늘의 주요 뉴스를 전해드렸습니다. 감사합니다.")
+
+# 💾 스크립트 파일로 저장
+output_script_path = "compiled_script.txt"
+with open(output_script_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(script_lines))
+
+print(f"📝 뉴스 스크립트 저장 완료 → {output_script_path}")
+exit()
+
+# === 5단계: 영상 제작 로직 (예시: 실제로는 ffmpeg 등 활용) ===
+# 이 부분은 프로젝트 상황에 따라 구현 필요
+print("🎞 영상 제작 중... (여기에 영상 제작 로직 구현)")
+
+# === 6단계: Supabase에 영상 등록 ===
+included_ids = ",".join(str(n["id"]) for n in news_list)
+
+insert_url = f"{SUPABASE_URL}/rest/v1/newsletter_videos"
+insert_payload = {
+    "subject": first_subject,
+    "included_newsletter_ids": included_ids
+}
+insert_res = requests.post(insert_url, json=insert_payload, headers=headers)
+
+if insert_res.status_code in [200, 201]:
+    print(f"✅ newsletter_videos 테이블에 등록 완료: {first_subject}")
+else:
+    print(f"❌ 등록 실패: {insert_res.status_code} - {insert_res.text}")
