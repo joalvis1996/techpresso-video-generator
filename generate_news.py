@@ -67,8 +67,6 @@ print("\n📰 생성된 뉴스 스크립트 내용:")
 with open(output_script_path, "r", encoding="utf-8") as f:
     print(f.read())
 
-exit()
-
 # === 5단계: 영상 제작 로직 (예시: 실제로는 ffmpeg 등 활용) ===
 # 이 부분은 프로젝트 상황에 따라 구현 필요
 print("🎞 영상 제작 중... (여기에 영상 제작 로직 구현)")
