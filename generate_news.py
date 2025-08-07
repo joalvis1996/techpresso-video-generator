@@ -9,7 +9,7 @@ headers = {
     "Authorization": f"Bearer {SUPABASE_API_KEY}"
 }
 
-# === 1단계: 영상화된 subject 목록 가져오기 ===
+# 영상화된 subject 목록 가져오기 
 video_subjects_url = f"{SUPABASE_URL}/rest/v1/newsletter_videos?select=included_newsletter_ids,subject"
 res = requests.get(video_subjects_url, headers=headers)
 video_subjects_data = res.json()
@@ -20,12 +20,12 @@ for item in video_subjects_data:
         used_subjects.add(item["subject"])
 
 print("✅ 영상화된 subject 수:", len(used_subjects))
-# === 2단계: 모든 뉴스 가져온 후 필터링 ===
+# 모든 뉴스 가져온 후 필터링 ===
 all_news_url = f"{SUPABASE_URL}/rest/v1/newsletter?select=id,subject,news_style_content&order=id.asc"
 news_res = requests.get(all_news_url, headers=headers)
 all_news = news_res.json()
 
-# 필터링: 아직 영상화되지 않은 subject만 추출
+# 아직 영상화되지 않은 subject만 추출
 new_subjects = {}
 for item in all_news:
     subj = item.get("subject")
@@ -34,7 +34,7 @@ for item in all_news:
 
 print("✅ 영상화 대상 subject 수:", len(new_subjects))
 
-# === 3단계: 첫 번째 subject만 선택 ===
+# 첫 번째 subject만 선택
 if not new_subjects:
     print("✅ 처리할 subject가 없습니다.")
     exit()
@@ -42,7 +42,7 @@ if not new_subjects:
 first_subject, news_list = next(iter(new_subjects.items()))
 print("🎬 처리할 subject:", first_subject)
 
-# === 4단계: 뉴스 스크립트 구성 ===
+# 뉴스 스크립트 구성
 script_lines = []
 script_lines.append("오늘의 뉴스를 전해드립니다.\n")
 
@@ -55,23 +55,23 @@ for idx, news in enumerate(news_list, 1):
 
 script_lines.append("\n이상으로 오늘의 주요 뉴스를 전해드렸습니다. 감사합니다.")
 
-# 💾 스크립트 파일로 저장
+# 스크립트 파일로 저장
 output_script_path = "compiled_script.txt"
 with open(output_script_path, "w", encoding="utf-8") as f:
     f.write("\n".join(script_lines))
 
 print(f"📝 뉴스 스크립트 저장 완료 → {output_script_path}")
 
-# === 저장된 스크립트 내용 출력 ===
+# 저장된 스크립트 내용 출력
 print("\n📰 생성된 뉴스 스크립트 내용:")
 with open(output_script_path, "r", encoding="utf-8") as f:
     print(f.read())
 
-# === 5단계: 영상 제작 로직 (예시: 실제로는 ffmpeg 등 활용) ===
+# 영상 제작 로직 (예시: 실제로는 ffmpeg 등 활용)
 # 이 부분은 프로젝트 상황에 따라 구현 필요
 print("🎞 영상 제작 중... (여기에 영상 제작 로직 구현)")
 
-# === 6단계: Supabase에 영상 등록 ===
+# Supabase에 영상 등록
 included_ids = ",".join(str(n["id"]) for n in news_list)
 
 insert_url = f"{SUPABASE_URL}/rest/v1/newsletter_videos"
