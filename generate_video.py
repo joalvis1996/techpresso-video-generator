@@ -31,7 +31,7 @@ rows = res.json()
 print("Response JSON:", rows)
 
 if not rows:
-    print("✅ 새로운 기사 없음.")
+    print("새로운 기사 없음.")
     exit()
 
 row = rows[0]
@@ -72,7 +72,7 @@ def segments_to_srt(segments, path):
             f.write(f"{i}\n{start} --> {end}\n{text}\n\n")
 
 segments_to_srt(result["segments"], "subtitle.srt")
-print("✅ Whisper SRT 생성 완료!")
+print("Whisper SRT 생성 완료!")
 
 # === 4) Supabase Storage에 SRT 업로드 ===
 with open("subtitle.srt", "rb") as f:
@@ -118,7 +118,7 @@ subprocess.run([
     "output.mp4"
 ], check=True)
 
-print("✅ Final video with subtitle done.")
+print("Final video with subtitle done.")
 
 # === 7) Supabase Storage에 영상 업로드 ===
 with open("output.mp4", "rb") as f:
@@ -147,4 +147,4 @@ patch = requests.patch(
 )
 
 print("PATCH video_url response:", patch.status_code, patch.text)
-print("✅ 동영상 생성 및 업로드 완료!")
+print("동영상 생성 및 업로드 완료!")
