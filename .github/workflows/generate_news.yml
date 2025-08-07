@@ -14,20 +14,16 @@ jobs:
       SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
 
     steps:
-      # ✅ 1. 코드 체크아웃
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ✅ 2. Python 설치
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      # ✅ 3. 패키지 설치
       - name: Install dependencies
         run: pip install requests
 
-      # ✅ 4. 뉴스 스크립트 생성 실행
       - name: Run generate_news.py
         run: python generate_news.py

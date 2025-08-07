@@ -23,7 +23,7 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "client_secret_953613797458-j2nu0fajone5vic5vtba06r20s4phseu.apps.googleusercontent.com.json",
+                "client_secret_953613797458-u9e7kthr5bcf7d62suq8b0ra2t1t5n8s.apps.googleusercontent.com.json",
                 SCOPES
             )
             # ✔️ run_local_server가 최신 버전에서 권장됨
