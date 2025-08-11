@@ -226,7 +226,7 @@
         8. generate_token 수정 및 실행 (python generate_token.py)
         
         <details>
-            <summary>OAuth 재인증</summary>
-            <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
+            <summary>발급된 token 사용 스크립트</summary>
+            <img src="./assets/img/gitactions_youtube_workflows.png" width="700"/>
         </details>
     
