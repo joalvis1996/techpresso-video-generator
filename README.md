@@ -223,7 +223,7 @@
         5. **플랫폼**: `데스크탑 어플리케이션` 선택  
         6. 클라이언트 ID 및 Secret 생성
         7. client_secret.json 프로젝트 디렉토리에 복사
-        8. 
+        8. generate_token 수정 및 실행 (python generate_token.py)
         
         <details>
             <summary>OAuth 재인증</summary>
