@@ -215,4 +215,18 @@
             <img src="./assets/img/errors/google_cloud_token_authentication.png" width="700"/>
         </details>
 
+     - 해결 방법<br>
+        1. Google Cloud Console 접속
+        2. `API 및 서비스` → `사용자 인증 정보`
+        3. `사용자 인증 정보 만들기` 선택
+        4. `OAuth 클라이언트 ID` 선택
+        5. **플랫폼**: `데스크탑 어플리케이션` 선택  
+        6. 클라이언트 ID 및 Secret 생성
+        7. client_secret.json 프로젝트 디렉토리에 복사
+        8. 
+        
+        <details>
+            <summary>OAuth 재인증</summary>
+            <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
+        </details>
     
