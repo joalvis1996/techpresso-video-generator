@@ -207,7 +207,7 @@
             <img src="./assets/img/errors/google_cloud_oauth.png" width="700"/>
         </details>
     
-2. token 인증 만료
+2. token 인증 만료 오류
 
     - 위치: youtube 관련 모든 workflows
         <details>
