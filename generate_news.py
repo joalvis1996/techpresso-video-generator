@@ -32,11 +32,9 @@ for item in all_news:
 
 # 첫 번째 subject만 선택
 if not new_subjects:
-    print("✅ 처리할 subject가 없습니다.")
     exit()
 
 first_subject, news_list = next(iter(new_subjects.items()))
-print("🎬 처리할 subject:", first_subject)
 
 # 뉴스 스크립트 구성
 script_lines = []
@@ -56,16 +54,12 @@ output_script_path = "compiled_script.txt"
 with open(output_script_path, "w", encoding="utf-8") as f:
     f.write("\n".join(script_lines))
 
-print(f"📝 뉴스 스크립트 저장 완료 → {output_script_path}")
-
 # 저장된 스크립트 내용 출력
-print("\n📰 생성된 뉴스 스크립트 내용:")
 with open(output_script_path, "r", encoding="utf-8") as f:
     print(f.read())
 
 # 영상 제작 로직 (예시: 실제로는 ffmpeg 등 활용)
 # 이 부분은 프로젝트 상황에 따라 구현 필요
-print("🎞 영상 제작 중... (여기에 영상 제작 로직 구현)")
 
 # Supabase에 영상 등록
 included_ids = ",".join(str(n["id"]) for n in news_list)
@@ -78,6 +72,6 @@ insert_payload = {
 insert_res = requests.post(insert_url, json=insert_payload, headers=headers)
 
 if insert_res.status_code in [200, 201]:
-    print(f"✅ newsletter_videos 테이블에 등록 완료: {first_subject}")
+    print(f"newsletter_videos 테이블에 등록 완료: {first_subject}")
 else:
-    print(f"❌ 등록 실패: {insert_res.status_code} - {insert_res.text}")
+    print(f"등록 실패: {insert_res.status_code} - {insert_res.text}")
