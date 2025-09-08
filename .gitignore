@@ -1,1 +1,7 @@
 client_secret*.json
+token.json
+.env
+.env*
+*.pem
+*.key
+service-account-*.json
