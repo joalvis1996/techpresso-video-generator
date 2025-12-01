@@ -1,9 +1,10 @@
 name: Generate Complete Video
 
-on:
-  push:
-    branches:
-      - main
+# 워크플로우 비활성화 - 실행되지 않도록 주석 처리
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   generate-news:
