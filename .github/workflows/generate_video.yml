@@ -25,30 +25,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            ffmpeg espeak libespeak-dev libsndfile1 \
+            ffmpeg \
             fonts-noto-cjk fonts-noto-cjk-extra
 
-      - name: Create aeneas Conda environment
+      - name: Create Python environment
         run: |
-          conda create -n aeneas-env python=3.10 numpy pip -y
-
-      - name: Install whisper in conda env
-        run: |
-          conda run -n aeneas-env pip install openai-whisper
+          conda create -n video-env python=3.10 pip -y
 
       - name: Install Python dependencies
         run: |
-          conda run -n aeneas-env pip install aeneas requests
-
-      - name: Confirm Conda environment
-        run: |
-          conda run -n aeneas-env python --version
-          conda run -n aeneas-env which python
-          conda run -n aeneas-env python -c "import numpy; print(numpy.__version__)"
+          conda run -n video-env pip install openai-whisper requests
 
       - name: Confirm FFmpeg version
         run: ffmpeg -version
 
       - name: Run generator script
         run: |
-          conda run -n aeneas-env python generate_video.py
+          conda run -n video-env python generate_video.py
