@@ -272,6 +272,3 @@ except Exception as e:
 # === 10) 임시 파일 정리 (선택사항) ===
 # 필요시 주석 해제하여 임시 파일 삭제
 # for temp_file in ["background.png", "audio.mp3", "subtitle.srt", "output.mp4"]:
-#     if os.path.exists(temp_file):
-#         os.remove(temp_file)
-#         print(f"임시 파일 삭제: {temp_file}")

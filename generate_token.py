@@ -1,4 +1,6 @@
 import os
+import sys
+import requests
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -24,7 +26,7 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "client_secret_953613797458-do02lhm18fnn6asamvg4gkp4ttvt3v66.apps.googleusercontent.com.json",
+                "client_secret_953613797458-8b8vclc8vvmjdi63ass4p4p6ftgjhrtn.apps.googleusercontent.com.json",
                 SCOPES
             )
             # ✔️ run_local_server가 최신 버전에서 권장됨
