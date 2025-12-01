@@ -227,7 +227,49 @@ except Exception as e:
 
 print("✅ 동영상 생성 및 업로드 완료!")
 
-# === 9) 임시 파일 정리 (선택사항) ===
+# === 9) newsletter_videos 테이블의 video_url 업데이트 ===
+# 현재 뉴스 ID가 포함된 newsletter_videos 레코드를 찾아서 video_url 업데이트
+try:
+    # 모든 newsletter_videos 가져오기
+    videos_url = f"{SUPABASE_URL}/rest/v1/newsletter_videos?select=id,included_newsletter_ids"
+    videos_res = requests.get(videos_url, headers=HEADERS)
+    
+    if videos_res.status_code == 200:
+        videos_data = videos_res.json()
+        # 포함된 ID 목록에서 현재 row_id가 있는 레코드 찾기
+        for video_record in videos_data:
+            included_ids_str = video_record.get("included_newsletter_ids", "")
+            if not included_ids_str:
+                continue
+                
+            included_ids = [int(id.strip()) for id in included_ids_str.split(",") if id.strip().isdigit()]
+            
+            if row_id in included_ids:
+                video_record_id = video_record.get("id")
+                # newsletter_videos의 video_url 업데이트
+                patch_video = requests.patch(
+                    f"{SUPABASE_URL}/rest/v1/newsletter_videos?id=eq.{video_record_id}",
+                    headers={
+                        "apikey": SUPABASE_API_KEY,
+                        "Authorization": f"Bearer {SUPABASE_API_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    json={"video_url": public_url}
+                )
+                
+                if patch_video.status_code in [200, 204]:
+                    print(f"✅ newsletter_videos (id={video_record_id})의 video_url 업데이트 완료")
+                else:
+                    print(f"⚠️ newsletter_videos 업데이트 실패: {patch_video.status_code} - {patch_video.text}")
+                break
+        else:
+            print(f"⚠️ row_id={row_id}를 포함하는 newsletter_videos 레코드를 찾을 수 없습니다.")
+    else:
+        print(f"⚠️ newsletter_videos 조회 실패: {videos_res.status_code} - {videos_res.text}")
+except Exception as e:
+    print(f"⚠️ newsletter_videos 업데이트 중 오류 발생 (무시됨): {e}")
+
+# === 10) 임시 파일 정리 (선택사항) ===
 # 필요시 주석 해제하여 임시 파일 삭제
 # for temp_file in ["background.png", "audio.mp3", "subtitle.srt", "output.mp4"]:
 #     if os.path.exists(temp_file):
