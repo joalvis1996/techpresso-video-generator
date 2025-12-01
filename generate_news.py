@@ -1,8 +1,13 @@
 import os
+import sys
 import requests
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
+
+if not SUPABASE_URL or not SUPABASE_API_KEY:
+    print("❌ 환경 변수 SUPABASE_URL 또는 SUPABASE_API_KEY가 설정되지 않았습니다.")
+    sys.exit(1)
 
 headers = {
     "apikey": SUPABASE_API_KEY,
@@ -10,8 +15,13 @@ headers = {
 }
 
 video_subjects_url = f"{SUPABASE_URL}/rest/v1/newsletter_videos?select=included_newsletter_ids,subject"
-res = requests.get(video_subjects_url, headers=headers)
-video_subjects_data = res.json()
+try:
+    res = requests.get(video_subjects_url, headers=headers)
+    res.raise_for_status()
+    video_subjects_data = res.json()
+except requests.RequestException as e:
+    print(f"❌ newsletter_videos 조회 실패: {e}")
+    sys.exit(1)
 
 used_subjects = set()
 for item in video_subjects_data:
@@ -20,8 +30,13 @@ for item in video_subjects_data:
 
 # 모든 뉴스 가져온 후 필터링 ===
 all_news_url = f"{SUPABASE_URL}/rest/v1/newsletter?select=id,subject,news_style_content&order=id.asc"
-news_res = requests.get(all_news_url, headers=headers)
-all_news = news_res.json()
+try:
+    news_res = requests.get(all_news_url, headers=headers)
+    news_res.raise_for_status()
+    all_news = news_res.json()
+except requests.RequestException as e:
+    print(f"❌ newsletter 조회 실패: {e}")
+    sys.exit(1)
 
 # 아직 영상화되지 않은 subject만 추출
 new_subjects = {}
@@ -32,7 +47,8 @@ for item in all_news:
 
 # 첫 번째 subject만 선택
 if not new_subjects:
-    exit()
+    print("✅ 새로운 뉴스 주제가 없습니다.")
+    sys.exit(0)
 
 first_subject, news_list = next(iter(new_subjects.items()))
 
@@ -67,11 +83,18 @@ included_ids = ",".join(str(n["id"]) for n in news_list)
 insert_url = f"{SUPABASE_URL}/rest/v1/newsletter_videos"
 insert_payload = {
     "subject": first_subject,
+    "video_title": first_subject,  # video_title은 NOT NULL 제약조건이 있음
     "included_newsletter_ids": included_ids
 }
-insert_res = requests.post(insert_url, json=insert_payload, headers=headers)
 
-if insert_res.status_code in [200, 201]:
-    print(f"newsletter_videos 테이블에 등록 완료: {first_subject}")
-else:
-    print(f"등록 실패: {insert_res.status_code} - {insert_res.text}")
+try:
+    insert_res = requests.post(insert_url, json=insert_payload, headers=headers)
+    
+    if insert_res.status_code in [200, 201]:
+        print(f"✅ newsletter_videos 테이블에 등록 완료: {first_subject}")
+    else:
+        print(f"❌ 등록 실패: {insert_res.status_code} - {insert_res.text}")
+        sys.exit(1)
+except requests.RequestException as e:
+    print(f"❌ Supabase 등록 요청 실패: {e}")
+    sys.exit(1)

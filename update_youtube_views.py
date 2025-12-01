@@ -58,15 +58,57 @@ CLIENT_SECRETS_FILE = "client_secret.json"
 
 creds = None
 if os.path.exists("token.json"):
-    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    try:
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+        print("✅ token.json 파일 로드 완료")
+    except Exception as e:
+        print(f"⚠️ token.json 파일 로드 실패: {e}")
+        creds = None
+
 if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
-        creds.refresh(google.auth.transport.requests.Request())
+        try:
+            print("토큰 갱신 시도 중...")
+            creds.refresh(google.auth.transport.requests.Request())
+            print("✅ 토큰 갱신 성공")
+            # 갱신된 토큰을 Supabase에 업로드 (선택사항)
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
+        except google.auth.exceptions.RefreshError as e:
+            print(f"❌ 토큰 갱신 실패: {e}")
+            print("⚠️ refresh_token이 만료되었거나 무효합니다. 재인증이 필요합니다.")
+            print("⚠️ CI/CD 환경에서는 수동으로 재인증할 수 없으므로, 로컬에서 새 토큰을 생성하여 Supabase Storage에 업로드해야 합니다.")
+            # refresh 실패 시 재인증 플로우로 이동
+            if os.path.exists(CLIENT_SECRETS_FILE):
+                print("재인증을 시도합니다...")
+                flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+                creds = flow.run_console()
+                with open("token.json", "w") as token:
+                    token.write(creds.to_json())
+                print("✅ 재인증 완료. 새 token.json을 Supabase Storage에 업로드하세요.")
+            else:
+                print(f"❌ {CLIENT_SECRETS_FILE} 파일이 없습니다. 재인증할 수 없습니다.")
+                exit(1)
+        except Exception as e:
+            print(f"❌ 토큰 갱신 중 예상치 못한 오류: {e}")
+            exit(1)
     else:
-        flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-        creds = flow.run_console()
-    with open("token.json", "w") as token:
-        token.write(creds.to_json())
+        if not creds:
+            print("토큰 파일이 없거나 유효하지 않습니다. 재인증이 필요합니다.")
+        elif not creds.refresh_token:
+            print("refresh_token이 없습니다. 재인증이 필요합니다.")
+        
+        if os.path.exists(CLIENT_SECRETS_FILE):
+            print("재인증을 시도합니다...")
+            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+            creds = flow.run_console()
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
+            print("✅ 재인증 완료. 새 token.json을 Supabase Storage에 업로드하세요.")
+        else:
+            print(f"❌ {CLIENT_SECRETS_FILE} 파일이 없습니다. 재인증할 수 없습니다.")
+            exit(1)
+
 youtube = build("youtube", "v3", credentials=creds)
 
 # === 4) 모든 row 반복해서 조회수 가져오고 DB 업데이트 ===
