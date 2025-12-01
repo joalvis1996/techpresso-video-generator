@@ -268,5 +268,3 @@ try:
         print(f"⚠️ newsletter_videos 조회 실패: {videos_res.status_code} - {videos_res.text}")
 except Exception as e:
     print(f"⚠️ newsletter_videos 업데이트 중 오류 발생 (무시됨): {e}")
-
-# === 10) 임시 파일 정리 (선택사항) ===
