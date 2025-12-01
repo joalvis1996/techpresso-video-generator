@@ -270,5 +270,3 @@ except Exception as e:
     print(f"⚠️ newsletter_videos 업데이트 중 오류 발생 (무시됨): {e}")
 
 # === 10) 임시 파일 정리 (선택사항) ===
-# 필요시 주석 해제하여 임시 파일 삭제
-# for temp_file in ["background.png", "audio.mp3", "subtitle.srt", "output.mp4"]:
